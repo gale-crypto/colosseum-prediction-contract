@@ -1,0 +1,138 @@
+use anchor_lang::prelude::*;
+use anchor_lang::solana_program::pubkey;
+use anchor_lang::system_program;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+
+pub mod constants;
+pub mod errors;
+pub mod ixs;
+pub mod state;
+pub mod utils;
+pub mod events;
+
+use ixs::*;
+
+declare_id!("4AEAbwpQHVr5ZG57sU5WB3xm5TGhRYCngpKLVV4C9ThV");
+
+#[program]
+pub mod colosseum_prediction {
+    use super::*;
+
+    pub fn initialize_admin_config(ctx: Context<InitializeAdminConfig>) -> Result<()> {
+        return ixs::initialize_admin_config::initialize_admin_config(ctx);
+    }
+
+    // pub fn add_admin(ctx: Context<ManageAdmin>, admin_address: Pubkey) -> Result<()> {
+    //     return ixs::control_admin::add_admin(ctx, admin_address);
+    // }
+
+    // pub fn remove_admin(ctx: Context<ManageAdmin>, admin_address: Pubkey) -> Result<()> {
+    //     return ixs::control_admin::remove_admin(ctx, admin_address);
+    // }
+
+    // pub fn initialize_market(
+    //     ctx: Context<InitializeMarket>,
+    //     market_id: String,
+    //     market_method: MarketMethod,
+    //     initial_yes_price: u64,
+    //     initial_no_price: u64,
+    //     options: Vec<String>,
+    //     initial_option_prices: Vec<u64>,
+    // ) -> Result<()> {
+    //     return ixs::initialize_market::initialize_market(ctx, market_id, market_method, initial_yes_price, initial_no_price, options, initial_option_prices);
+    // }
+
+    // // -----------------------
+    // // BUY (Binary)
+    // // -----------------------
+
+    // pub fn buy_yes_usdt(ctx: Context<BuySharesWithUSDT>, amount: u64) -> Result<()> {
+    //     return ixs::buy_binary_usdt::buy_yes_usdt(ctx, amount);
+    // }
+
+    // pub fn buy_yes_usdc(ctx: Context<BuySharesWithUSDC>, amount: u64) -> Result<()> {
+    //     return ixs::buy_binary_usdc::buy_yes_usdc(ctx, amount);
+    // }
+
+    // pub fn buy_no_usdt(ctx: Context<BuySharesWithUSDT>, amount: u64) -> Result<()> {
+    //     return ixs::buy_binary_usdt::buy_no_usdt(ctx, amount);
+    // }
+
+    // pub fn buy_no_usdc(ctx: Context<BuySharesWithUSDC>, amount: u64) -> Result<()> {
+    //     return ixs::buy_binary_usdc::buy_no_usdc(ctx, amount);
+    // }
+
+    // // -----------------------
+    // // SELL (Binary)
+    // // -----------------------
+
+    // pub fn sell_yes(ctx: Context<SellShares>, shares: u64) -> Result<()> {
+    //     return ixs::sell_binary::sell_yes(ctx, shares);
+    // }
+
+    // pub fn sell_no(ctx: Context<SellShares>, shares: u64) -> Result<()> {
+    //     return ixs::sell_binary::sell_no(ctx, shares);
+    // }
+
+    // // -----------------------
+    // // Resolve + Claim (kept same)
+    // // -----------------------
+
+    // pub fn resolve_market(ctx: Context<ResolveMarket>, outcome: MarketOutcome) -> Result<()> {
+    //     return ixs::resolve_market::resolve_market(ctx, outcome);
+    // }    
+
+    // pub fn claim_winnings_yesno(ctx: Context<ClaimWinnings>) -> Result<()> {
+    //   return ixs::claim_winnings_yesno::claim_winnings_yesno(ctx);
+    // }
+
+    // // -----------------------
+    // // Multi-choice trades (UPDATED to LMSR)
+    // // -----------------------
+
+    // pub fn buy_option_usdt(ctx: Context<BuyOptionUSDT>, option_index: u8, amount: u64) -> Result<()> {
+    //     return ixs::buy_option_usdt::buy_option_usdt(ctx, option_index, amount);
+    // }
+
+    // pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u64) -> Result<()> {
+    //     return ixs::buy_option_usdc::buy_option_usdc(ctx, option_index, amount);
+    // }
+
+    // pub fn sell_option(ctx: Context<SellOption>, option_index: u8, shares: u64) -> Result<()> {
+    //     return ixs::sell_option::sell_option(ctx, option_index, shares);
+    // }
+
+    // pub fn simulate_buy_binary(
+    //     ctx: Context<SimulateMarketReadOnly>,
+    //     side_yes: bool,
+    //     amount: u64,
+    // ) -> Result<()> {
+    //     return ixs::simulate_market_read_only::simulate_buy_binary(ctx, side_yes, amount);
+    // }
+    
+    // pub fn simulate_sell_binary(
+    //     ctx: Context<SimulateMarketReadOnly>,
+    //     side_yes: bool,
+    //     shares: u64,
+    // ) -> Result<()> {
+    //     return ixs::simulate_market_read_only::simulate_sell_binary(ctx, side_yes, shares);
+    // }
+    
+    // pub fn simulate_buy_option(
+    //     ctx: Context<SimulateMarketReadOnly>,
+    //     option_index: u8,
+    //     amount: u64,
+    // ) -> Result<()> {
+    //     return ixs::simulate_market_read_only::simulate_buy_option(ctx, option_index, amount);
+    // }
+    
+    // pub fn simulate_sell_option(
+    //     ctx: Context<SimulateMarketReadOnly>,
+    //     option_index: u8,
+    //     shares: u64,
+    // ) -> Result<()> {
+    //     return ixs::simulate_market_read_only::simulate_sell_option(ctx, option_index, shares);
+    // }    
+}
+

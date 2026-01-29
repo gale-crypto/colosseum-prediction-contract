@@ -1,0 +1,151 @@
+use anchor_lang::prelude::*;
+
+pub fn buy_option_usdt(ctx: Context<BuyOptionUSDT>, option_index: u8, amount: u64) -> Result<()> {
+    let market = &mut ctx.accounts.market;
+    require!(market.market_method == MarketMethod::MultiChoice, ErrorCode::InvalidMarketMethod);
+
+    let idx = option_index as usize;
+    require!(idx < market.options.len(), ErrorCode::InvalidOptionIndex);
+
+    let (fee_amount, amount_after_fee) = calc_fee(amount)?;
+
+    if fee_amount > 0 {
+        token::transfer(
+            CpiContext::new(
+                ctx.accounts.token_program.to_account_info(),
+                Transfer {
+                    from: ctx.accounts.user_token_account.to_account_info(),
+                    to: ctx.accounts.fee_recipient_token_account.to_account_info(),
+                    authority: ctx.accounts.user.to_account_info(),
+                },
+            ),
+            fee_amount,
+        )?;
+    }
+
+    token::transfer(
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.user_token_account.to_account_info(),
+                to: ctx.accounts.market_vault.to_account_info(),
+                authority: ctx.accounts.user.to_account_info(),
+            },
+        ),
+        amount_after_fee,
+    )?;
+
+    // LMSR: amount -> shares_out, then q_idx += shares_out and prices recomputed
+    let b = market.virtual_liquidity;
+    let (shares_out, new_prices) = lmsr_buy_option_from_amount(amount_after_fee, &market.option_volumes, idx, b)?;
+
+    let position = &mut ctx.accounts.position;
+    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, ctx.bumps.position, market);
+
+    // position shares
+    require!(position.option_shares.len() == market.options.len(), ErrorCode::InvalidPositionAccount);
+    position.option_shares[idx] = position.option_shares[idx].checked_add(shares_out).ok_or(ErrorCode::MathOverflow)?;
+    position.total_deposited_usdt = position.total_deposited_usdt.checked_add(amount).ok_or(ErrorCode::MathOverflow)?;
+    position.option_costs[idx] = position.option_costs[idx]
+    .checked_add(amount_after_fee)
+    .ok_or(ErrorCode::MathOverflow)?;
+    position.fees_paid = position.fees_paid
+    .checked_add(fee_amount)
+    .ok_or(ErrorCode::MathOverflow)?;           
+
+    // market totals
+    market.total_option_shares[idx] = market.total_option_shares[idx].checked_add(shares_out).ok_or(ErrorCode::MathOverflow)?;
+
+    // q update
+    market.option_volumes[idx] = market.option_volumes[idx].checked_add(shares_out).ok_or(ErrorCode::MathOverflow)?;
+
+    market.option_prices = new_prices;
+
+    let avg_price = if shares_out > 0 {
+        (amount_after_fee as u128)
+            .checked_mul(PRICE_SCALE as u128).ok_or(ErrorCode::MathOverflow)?
+            .checked_div(shares_out as u128).ok_or(ErrorCode::MathOverflow)? as u64
+    } else {
+        0
+    };
+
+    let real_price = if shares_out > 0 {
+        (amount as u128)
+            .checked_mul(PRICE_SCALE as u128).ok_or(ErrorCode::MathOverflow)?
+            .checked_div(shares_out as u128).ok_or(ErrorCode::MathOverflow)? as u64
+    } else {
+        0
+    };        
+    
+    market.total_volume = market.total_volume.checked_add(amount).ok_or(ErrorCode::MathOverflow)?;
+    emit!(BuyOptionEvent {
+        market: market.key(),
+        payer: ctx.accounts.user.key(),
+        is_usdt: true, // set false in USDC variant
+        option_index,
+        amount_in: amount,
+        fee: fee_amount,
+        amount_after_fee,
+        shares_out,
+        option_prices_after: market.option_prices.clone(), // already updated to new_prices
+        avg_price,
+        real_price,
+    });
+
+    Ok(())
+}
+
+#[derive(Accounts)]
+#[instruction(option_index: u8, amount: u64)]
+pub struct BuyOptionUSDT<'info> {
+    #[account(
+        mut,
+        seeds = [b"market", &prepare_market_id_seed(&market.market_id)],
+        bump
+    )]
+    pub market: Box<Account<'info, Market>>,
+
+    #[account(
+        init_if_needed,
+        payer = user,
+        space = 8 + Position::LEN,
+        seeds = [b"position", user.key().as_ref(), &prepare_market_id_seed(&market.market_id)],
+        bump
+    )]
+    pub position: Box<Account<'info, Position>>,
+
+    #[account(seeds = [b"admin_config"], bump)]
+    pub admin_config: Box<Account<'info, AdminConfig>>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    #[account(
+        mut,
+        associated_token::mint = usdt_mint,
+        associated_token::authority = user
+    )]
+    pub user_token_account: Account<'info, TokenAccount>,
+
+    #[account(
+        mut,
+        associated_token::mint = usdt_mint,
+        associated_token::authority = market
+    )]
+    pub market_vault: Account<'info, TokenAccount>,
+
+    #[account(
+        mut,
+        associated_token::mint = usdt_mint,
+        associated_token::authority = admin_config.fee_recipient
+    )]
+    pub fee_recipient_token_account: Account<'info, TokenAccount>,
+
+    #[account(constraint = usdt_mint.key() == USDT_MINT_PUBKEY @ ErrorCode::InvalidMintAddress)]
+    pub usdt_mint: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
+    pub rent: Sysvar<'info, Rent>,
+    pub system_program: Program<'info, System>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+}

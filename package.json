@@ -1,0 +1,29 @@
+{
+  "license": "ISC",
+  "scripts": {
+    "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+  },
+  "dependencies": {
+    "@actions/core": "^2.0.1",
+    "@coral-xyz/anchor": "0.31.1",
+    "@marinade.finance/marinade-ts-sdk": "^5.0.18",
+    "@raydium-io/raydium-sdk-v2": "^0.2.30-alpha",
+    "@solana/spl-token": "^0.4.14",
+    "@sqds/multisig": "^2.1.4",
+    "@switchboard-xyz/on-demand": "^3.1.2",
+    "axios": "^1.13.1",
+    "chalk": "^5.6.2",
+    "inquirer": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "prettier": "^2.6.2",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^5.7.3"
+  }
+}
