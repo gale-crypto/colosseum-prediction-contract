@@ -1,6 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::pubkey;
-use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
@@ -8,7 +6,9 @@ use crate::errors::ErrorCode;
 use crate::events::BuyBinaryEvent;
 use crate::state::{AdminConfig, Market, MarketMethod, Position};
 use crate::constants::{USDC_MINT_PUBKEY, PRICE_SCALE};
-use crate::utils::{prepare_market_id_seed, ensure_position_initialized, lmsr_buy_yes_from_amount, lmsr_buy_no_from_amount};
+use crate::utils::{
+    prepare_market_id_seed, ensure_position_initialized, lmsr_buy_yes_from_amount, lmsr_buy_no_from_amount, calc_fee
+};
 
 pub fn buy_yes_usdc(ctx: Context<BuySharesWithUSDC>, amount: u64) -> Result<()> {
     let (fee_amount, amount_after_fee) = calc_fee(amount)?;

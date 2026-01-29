@@ -1,12 +1,10 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::pubkey;
-use anchor_lang::system_program;
-use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Mint, TokenAccount};
 
 use crate::errors::ErrorCode;
 use crate::state::{AdminConfig, Market, MarketOutcome, ResolutionStatus};
 use crate::constants::{USDT_MINT_PUBKEY, USDC_MINT_PUBKEY, PRICE_SCALE};
+use crate::utils::prepare_market_id_seed;
 
 pub fn resolve_market(ctx: Context<ResolveMarket>, outcome: MarketOutcome) -> Result<()> {
     require!(

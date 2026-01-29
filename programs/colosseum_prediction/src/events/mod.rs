@@ -1,3 +1,3 @@
 pub mod events;
 
-use events::*;
+pub use events::*;

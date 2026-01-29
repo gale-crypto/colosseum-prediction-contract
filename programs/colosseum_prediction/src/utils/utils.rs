@@ -1,7 +1,13 @@
 use anchor_lang::prelude::*;
 use raydium_amm_cpi::SwapBaseIn;
+use anchor_spl::token::{Mint};
 
 use crate::errors::ErrorCode;
+use crate::state::{Market, MarketMethod, Position, RaydiumSwapAccounts};
+use crate::constants::{
+    PRICE_SCALE, EXP_CLAMP, MIN_PRICE, MAX_PRICE,
+    FEE_TOTAL, FEE_BUYBACK, FEE_REFERRAL,
+};
 
 // -----------------------
 // Small math helpers
@@ -511,78 +517,78 @@ pub fn lmsr_sell_option_to_amount(
 // Do the buyback swap + burn inside the buy instruction.
 // - source_vault: market USDT/USDC vault holding fee_buyback
 // - km_vault: market KM ATA receives swap output
-// pub fn swap_buyback_and_burn<'info>(
-//     market: &Account<'info, Market>,
-//     market_id_seed: &[u8; 32],
-//     market_bump: u8,
-//     amount_in: u64,
-//     min_amount_out: u64,
-//     // Raydium accounts:
-//     ray: &RaydiumSwapAccounts<'info>,
-//     // token:
-//     km_mint: &Account<'info, Mint>,
-//     km_vault: &Account<'info, TokenAccount>,
-//     token_program: &Program<'info, Token>,
-// ) -> Result<()> {
-//     if amount_in == 0 {
-//         return Ok(());
-//     }
+pub fn swap_buyback_and_burn<'info>(
+    market: &Account<'info, Market>,
+    market_id_seed: &[u8; 32],
+    market_bump: u8,
+    amount_in: u64,
+    min_amount_out: u64,
+    // Raydium accounts:
+    ray: &RaydiumSwapAccounts<'info>,
+    // token:
+    km_mint: &Account<'info, Mint>,
+    km_vault: &Account<'info, TokenAccount>,
+    token_program: &Program<'info, Token>,
+) -> Result<()> {
+    if amount_in == 0 {
+        return Ok(());
+    }
 
-//     // market PDA signer
-//     let signer_seeds: &[&[&[u8]]] = &[&[b"market", market_id_seed, &[market_bump]]];
+    // market PDA signer
+    let signer_seeds: &[&[&[u8]]] = &[&[b"market", market_id_seed, &[market_bump]]];
 
-//     // 1) CPI swap fee_buyback stable -> KM (destination is km_vault)
-//     // user_token_source is the market stable vault, owned by market PDA
-//     // user_source_owner is the market PDA (signer via seeds)
-//     let cpi_accounts = raydium_amm_cpi::SwapBaseIn {
-//         amm_program: ray.amm_program.to_account_info().into(),
-//         amm: ray.amm.to_account_info().into(),
-//         amm_authority: ray.amm_authority.to_account_info().into(),
-//         amm_open_orders: ray.amm_open_orders.to_account_info().into(),
-//         amm_coin_vault: ray.amm_coin_vault.to_account_info().into(),
-//         amm_pc_vault: ray.amm_pc_vault.to_account_info().into(),
-//         market_program: ray.market_program.to_account_info().into(),
-//         market: ray.market.to_account_info().into(),
-//         market_bids: ray.market_bids.to_account_info().into(),
-//         market_asks: ray.market_asks.to_account_info().into(),
-//         market_event_queue: ray.market_event_queue.to_account_info().into(),
-//         market_coin_vault: ray.market_coin_vault.to_account_info().into(),
-//         market_pc_vault: ray.market_pc_vault.to_account_info().into(),
-//         market_vault_signer: ray.market_vault_signer.to_account_info().into(),
-//         user_token_source: ray.user_token_source.clone(),
-//         user_token_destination: km_vault.clone(),
-//         user_source_owner: market.to_account_info().into(),
-//         token_program: token_program.clone(),
-//     };
+    // 1) CPI swap fee_buyback stable -> KM (destination is km_vault)
+    // user_token_source is the market stable vault, owned by market PDA
+    // user_source_owner is the market PDA (signer via seeds)
+    let cpi_accounts = raydium_amm_cpi::SwapBaseIn {
+        amm_program: ray.amm_program.to_account_info().into(),
+        amm: ray.amm.to_account_info().into(),
+        amm_authority: ray.amm_authority.to_account_info().into(),
+        amm_open_orders: ray.amm_open_orders.to_account_info().into(),
+        amm_coin_vault: ray.amm_coin_vault.to_account_info().into(),
+        amm_pc_vault: ray.amm_pc_vault.to_account_info().into(),
+        market_program: ray.market_program.to_account_info().into(),
+        market: ray.market.to_account_info().into(),
+        market_bids: ray.market_bids.to_account_info().into(),
+        market_asks: ray.market_asks.to_account_info().into(),
+        market_event_queue: ray.market_event_queue.to_account_info().into(),
+        market_coin_vault: ray.market_coin_vault.to_account_info().into(),
+        market_pc_vault: ray.market_pc_vault.to_account_info().into(),
+        market_vault_signer: ray.market_vault_signer.to_account_info().into(),
+        user_token_source: ray.user_token_source.clone(),
+        user_token_destination: km_vault.clone(),
+        user_source_owner: market.to_account_info().into(),
+        token_program: token_program.clone(),
+    };
 
-//     let cpi_ctx = CpiContext::new_with_signer(
-//         token_program.to_account_info(), // NOTE: in a real raydium-cpi call, program is Raydium AMM program, not token_program
-//         cpi_accounts,
-//         signer_seeds,
-//     );
+    let cpi_ctx = CpiContext::new_with_signer(
+        token_program.to_account_info(), // NOTE: in a real raydium-cpi call, program is Raydium AMM program, not token_program
+        cpi_accounts,
+        signer_seeds,
+    );
 
-//     // IMPORTANT:
-//     // In real code, the CpiContext::new_with_signer "program" should be the Raydium AMM program account,
-//     // not SPL token. The raydium-cpi crate usually exposes a `Program<'info, AmmV4>` or UncheckedAccount.
-//     // Wire this according to the raydium-cpi crate you import.
-//     raydium_amm_cpi::cpi_swap_base_in(cpi_ctx, amount_in, min_amount_out)?;
+    // IMPORTANT:
+    // In real code, the CpiContext::new_with_signer "program" should be the Raydium AMM program account,
+    // not SPL token. The raydium-cpi crate usually exposes a `Program<'info, AmmV4>` or UncheckedAccount.
+    // Wire this according to the raydium-cpi crate you import.
+    raydium_amm_cpi::cpi_swap_base_in(cpi_ctx, amount_in, min_amount_out)?;
 
-//     // 2) Burn all KM currently in km_vault (or burn delta if you prefer)
-//     let km_received = km_vault.amount; // you may want to compute delta using pre/post balances in practice
-//     if km_received > 0 {
-//         token::burn(
-//             CpiContext::new_with_signer(
-//                 token_program.to_account_info(),
-//                 Burn {
-//                     mint: km_mint.to_account_info(),
-//                     from: km_vault.to_account_info(),
-//                     authority: market.to_account_info(),
-//                 },
-//                 signer_seeds,
-//             ),
-//             km_received,
-//         )?;
-//     }
+    // 2) Burn all KM currently in km_vault (or burn delta if you prefer)
+    let km_received = km_vault.amount; // you may want to compute delta using pre/post balances in practice
+    if km_received > 0 {
+        token::burn(
+            CpiContext::new_with_signer(
+                token_program.to_account_info(),
+                Burn {
+                    mint: km_mint.to_account_info(),
+                    from: km_vault.to_account_info(),
+                    authority: market.to_account_info(),
+                },
+                signer_seeds,
+            ),
+            km_received,
+        )?;
+    }
 
-//     Ok(())
-// }
+    Ok(())
+}

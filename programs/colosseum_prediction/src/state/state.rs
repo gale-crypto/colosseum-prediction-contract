@@ -1,18 +1,9 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::TokenAccount;
 
 // =======================
 // State
 // =======================
-
-// #[derive(Accounts)]
-// #[instruction(
-//     market_id: String,
-//     market_method: MarketMethod,
-//     initial_yes_price: u64,
-//     initial_no_price: u64,
-//     options: Vec<String>,
-//     initial_option_prices: Vec<u64>
-// )]
 
 #[account]
 pub struct Market {

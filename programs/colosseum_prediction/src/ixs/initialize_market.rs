@@ -1,8 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::pubkey;
 use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 use crate::errors::ErrorCode;
 use crate::state::{AdminConfig, Market, MarketMethod, MarketOutcome, ResolutionStatus};
@@ -118,7 +117,15 @@ pub fn initialize_market(
     Ok(())
 }
 
-
+#[derive(Accounts)]
+#[instruction(
+    market_id: String,
+    market_method: MarketMethod,
+    initial_yes_price: u64,
+    initial_no_price: u64,
+    options: Vec<String>,
+    initial_option_prices: Vec<u64>,
+)]
 pub struct InitializeMarket<'info> {
     #[account(
         init,

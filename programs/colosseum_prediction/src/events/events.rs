@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::state::MarketOutcome;
+
 #[event]
 pub struct BuyBinaryEvent {
     pub market: Pubkey,
