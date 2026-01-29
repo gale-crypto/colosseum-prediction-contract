@@ -4,6 +4,10 @@ use anchor_lang::system_program;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
+use crate::errors::ErrorCode;
+use crate::state::AdminConfig;
+use crate::constants::{USDT_MINT_PUBKEY, USDC_MINT_PUBKEY};
+
 pub fn initialize_admin_config(ctx: Context<InitializeAdminConfig>) -> Result<()> {
     let admin_config = &mut ctx.accounts.admin_config;
     admin_config.authority = ctx.accounts.authority.key();

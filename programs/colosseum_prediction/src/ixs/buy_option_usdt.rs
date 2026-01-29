@@ -1,4 +1,14 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::pubkey;
+use anchor_lang::system_program;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+
+use crate::errors::ErrorCode;
+use crate::state::{Market, MarketMethod, Position, AdminConfig};
+use crate::constants::{USDT_MINT_PUBKEY, PRICE_SCALE};
+use crate::events::BuyOptionEvent;
+use crate::utils::{prepare_market_id_seed, ensure_position_initialized, lmsr_buy_option_from_amount, calc_fee};
 
 pub fn buy_option_usdt(ctx: Context<BuyOptionUSDT>, option_index: u8, amount: u64) -> Result<()> {
     let market = &mut ctx.accounts.market;

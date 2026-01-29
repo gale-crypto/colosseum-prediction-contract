@@ -1,4 +1,19 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::pubkey;
+use anchor_lang::system_program;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+
+use crate::errors::ErrorCode;
+use crate::events::{BuyBinaryEvent, SellBinaryEvent, BuyOptionEvent, SellOptionEvent};
+use crate::state::{Market, MarketMethod};
+use crate::constants::{PRICE_SCALE};
+use crate::utils::{
+    lmsr_buy_yes_from_amount, lmsr_buy_no_from_amount,
+    lmsr_sell_yes_to_amount, lmsr_sell_no_to_amount,
+    lmsr_buy_option_from_amount, lmsr_sell_option_to_amount,
+    calc_fee,
+};
 
 pub fn simulate_buy_binary(
     ctx: Context<SimulateMarketReadOnly>,

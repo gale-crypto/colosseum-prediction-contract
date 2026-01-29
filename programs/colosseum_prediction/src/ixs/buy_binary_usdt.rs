@@ -1,9 +1,20 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::pubkey;
+use anchor_lang::system_program;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+
+use crate::errors::ErrorCode;
+use crate::state::{AdminConfig, Market, MarketMethod, Position};
+use crate::constants::{USDT_MINT_PUBKEY, PRICE_SCALE};
+use crate::events::BuyBinaryEvent;
+use crate::utils::{prepare_market_id_seed, ensure_position_initialized, lmsr_buy_yes_from_amount, lmsr_buy_no_from_amount, calc_fee};
 
 pub fn buy_yes_usdt(ctx: Context<BuySharesWithUSDT>, amount: u64) -> Result<()> {
-    let (fee_total, amount_after_fee, fee_buyback, _fee_referral, fee_treasury) = calc_fee_split(amount)?;
+    // let (fee_total, amount_after_fee, fee_buyback, _fee_referral, fee_treasury) = calc_fee_split(amount)?;
+    let (fee_amount, amount_after_fee) = calc_fee(amount)?;
 
-    if fee_treasury > 0 {
+    if fee_amount > 0 {
         token::transfer(
             CpiContext::new(
                 ctx.accounts.token_program.to_account_info(),
@@ -13,7 +24,7 @@ pub fn buy_yes_usdt(ctx: Context<BuySharesWithUSDT>, amount: u64) -> Result<()> 
                     authority: ctx.accounts.user.to_account_info(),
                 },
             ),
-            fee_treasury,
+            fee_amount,
         )?;
     }
 

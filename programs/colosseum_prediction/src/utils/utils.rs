@@ -1,22 +1,24 @@
 use anchor_lang::prelude::*;
 use raydium_amm_cpi::SwapBaseIn;
 
+use crate::errors::ErrorCode;
+
 // -----------------------
 // Small math helpers
 // -----------------------
 
 #[inline(always)]
-fn clamp_exp(x: f64) -> f64 {
+pub fn clamp_exp(x: f64) -> f64 {
     x.max(-EXP_CLAMP).min(EXP_CLAMP)
 }
 
 #[inline(always)]
-fn u64_to_f64_units(x: u64) -> f64 {
+pub fn u64_to_f64_units(x: u64) -> f64 {
     (x as f64) / (PRICE_SCALE as f64)
 }
 
 #[inline(always)]
-fn f64_units_to_u64_floor(x: f64) -> Result<u64> {
+pub fn f64_units_to_u64_floor(x: f64) -> Result<u64> {
     require!(x.is_finite() && x >= 0.0, ErrorCode::MathOverflow);
     let scaled = x * (PRICE_SCALE as f64);
     require!(scaled.is_finite() && scaled <= (u64::MAX as f64), ErrorCode::MathOverflow);
@@ -24,14 +26,14 @@ fn f64_units_to_u64_floor(x: f64) -> Result<u64> {
 }
 
 #[inline(always)]
-fn price_no_from_yes(yes_price: u64) -> Result<u64> {
+pub fn price_no_from_yes(yes_price: u64) -> Result<u64> {
     PRICE_SCALE
         .checked_sub(yes_price)
         .ok_or(ErrorCode::MathOverflow.into())
 }
 
 /// Prepare market_id for PDA seeds by taking first 32 bytes
-fn prepare_market_id_seed(market_id: &str) -> [u8; 32] {
+pub fn prepare_market_id_seed(market_id: &str) -> [u8; 32] {
     let bytes = market_id.as_bytes();
     let len = 32.min(bytes.len());
     let mut result = [0u8; 32];
@@ -66,8 +68,18 @@ pub fn calc_fee_split(amount: u64) -> Result<(u64, u64, u64, u64, u64)> {
     Ok((fee_total, after_fee, fee_buyback, fee_referral, fee_treasury))
 }
 
+pub fn calc_fee(amount: u64) -> Result<(u64, u64)> {
+    let fee_amount = (amount as u128)
+        .checked_mul(FEE_TOTAL as u128).ok_or(ErrorCode::MathOverflow)?
+        .checked_div(PRICE_SCALE as u128).ok_or(ErrorCode::MathOverflow)? as u64;
+
+    let after_fee = amount.checked_sub(fee_amount).ok_or(ErrorCode::MathOverflow)?;
+
+    Ok((fee_amount, after_fee))
+}
+
 /// Ensure a Position is initialized if created via init_if_needed.
-fn ensure_position_initialized(
+pub fn ensure_position_initialized(
     position: &mut Position,
     user: Pubkey,
     market_id: &str,
@@ -106,7 +118,7 @@ fn ensure_position_initialized(
 }
 
 /// Split payout between USDT and USDC based on vault balances (1 USD stable assumption).
-fn split_payout(
+pub fn split_payout(
     payout_before_fee: u64,
     payout_after_fee: u64,
     fee_amount: u64,
@@ -149,7 +161,7 @@ fn split_payout(
 // -----------------------
 // P/L helpers
 // -----------------------
-fn avg_cost_remove(cost: u64, shares_total: u64, shares_sold: u64) -> Result<u64> {
+pub fn avg_cost_remove(cost: u64, shares_total: u64, shares_sold: u64) -> Result<u64> {
     require!(shares_total > 0, ErrorCode::MathOverflow);
     require!(shares_sold <= shares_total, ErrorCode::MathOverflow);
 
@@ -169,7 +181,7 @@ fn avg_cost_remove(cost: u64, shares_total: u64, shares_sold: u64) -> Result<u64
 
 /// LMSR spot price for YES:
 /// p_yes = exp(qy/b) / (exp(qy/b) + exp(qn/b))
-fn lmsr_price_yes(q_yes: u64, q_no: u64, b: u64) -> Result<u64> {
+pub fn lmsr_price_yes(q_yes: u64, q_no: u64, b: u64) -> Result<u64> {
     require!(b > 0, ErrorCode::MathOverflow);
 
     let qy = u64_to_f64_units(q_yes);
@@ -191,7 +203,7 @@ fn lmsr_price_yes(q_yes: u64, q_no: u64, b: u64) -> Result<u64> {
 
 /// LMSR cost function (collateral whole units):
 /// C = b * ln(exp(qy/b) + exp(qn/b))
-fn lmsr_cost_units(q_yes: u64, q_no: u64, b: u64) -> Result<f64> {
+pub fn lmsr_cost_units(q_yes: u64, q_no: u64, b: u64) -> Result<f64> {
     require!(b > 0, ErrorCode::MathOverflow);
 
     let qy = u64_to_f64_units(q_yes);
@@ -210,7 +222,7 @@ fn lmsr_cost_units(q_yes: u64, q_no: u64, b: u64) -> Result<f64> {
 }
 
 /// Seed q_yes/q_no to match initial price exactly.
-fn lmsr_seed_q_from_initial_prices(initial_yes_price: u64, initial_no_price: u64, b: u64) -> Result<(u64, u64)> {
+pub fn lmsr_seed_q_from_initial_prices(initial_yes_price: u64, initial_no_price: u64, b: u64) -> Result<(u64, u64)> {
     require!(
         initial_yes_price
             .checked_add(initial_no_price)
@@ -246,7 +258,7 @@ fn lmsr_seed_q_from_initial_prices(initial_yes_price: u64, initial_no_price: u64
 }
 
 /// BUY YES with net spend x_net (scaled 1e6 collateral).
-fn lmsr_buy_yes_from_amount(x_net: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
+pub fn lmsr_buy_yes_from_amount(x_net: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
     require!(b > 0, ErrorCode::MathOverflow);
 
     let x = u64_to_f64_units(x_net);
@@ -272,7 +284,7 @@ fn lmsr_buy_yes_from_amount(x_net: u64, q_yes: u64, q_no: u64, b: u64) -> Result
     Ok((shares_out, new_yes_price, new_no_price))
 }
 
-fn lmsr_buy_no_from_amount(x_net: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
+pub fn lmsr_buy_no_from_amount(x_net: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
     require!(b > 0, ErrorCode::MathOverflow);
 
     let x = u64_to_f64_units(x_net);
@@ -299,7 +311,7 @@ fn lmsr_buy_no_from_amount(x_net: u64, q_yes: u64, q_no: u64, b: u64) -> Result<
 }
 
 /// SELL YES shares -> payout_before_fee (scaled 1e6 collateral)
-fn lmsr_sell_yes_to_amount(shares: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
+pub fn lmsr_sell_yes_to_amount(shares: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
     require!(shares <= q_yes, ErrorCode::InsufficientShares);
 
     let c_before = lmsr_cost_units(q_yes, q_no, b)?;
@@ -315,7 +327,7 @@ fn lmsr_sell_yes_to_amount(shares: u64, q_yes: u64, q_no: u64, b: u64) -> Result
     Ok((payout_before_fee, new_yes_price, new_no_price))
 }
 
-fn lmsr_sell_no_to_amount(shares: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
+pub fn lmsr_sell_no_to_amount(shares: u64, q_yes: u64, q_no: u64, b: u64) -> Result<(u64, u64, u64)> {
     require!(shares <= q_no, ErrorCode::InsufficientShares);
 
     let c_before = lmsr_cost_units(q_yes, q_no, b)?;
@@ -337,7 +349,7 @@ fn lmsr_sell_no_to_amount(shares: u64, q_yes: u64, q_no: u64, b: u64) -> Result<
 // We store spot prices in market.option_prices[i] (scaled 1e6).
 // -----------------------
 
-fn lmsr_sum_exp_multi(qs: &Vec<u64>, b: u64) -> Result<(f64, Vec<f64>)> {
+pub fn lmsr_sum_exp_multi(qs: &Vec<u64>, b: u64) -> Result<(f64, Vec<f64>)> {
     require!(b > 0, ErrorCode::MathOverflow);
     let bb = u64_to_f64_units(b);
 
@@ -355,7 +367,7 @@ fn lmsr_sum_exp_multi(qs: &Vec<u64>, b: u64) -> Result<(f64, Vec<f64>)> {
     Ok((sum, exps))
 }
 
-fn lmsr_prices_multi(qs: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
+pub fn lmsr_prices_multi(qs: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
     let (sum, exps) = lmsr_sum_exp_multi(qs, b)?;
     let mut prices: Vec<u64> = Vec::with_capacity(qs.len());
 
@@ -383,7 +395,7 @@ fn lmsr_prices_multi(qs: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
 
 /// Seed q vector from initial option prices (must roughly sum to 1.0).
 /// q_i = b*ln(p_i) + offset, offset chosen so min(q_i)=0.
-fn lmsr_seed_q_vec_from_initial_option_prices(initial_prices: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
+pub fn lmsr_seed_q_vec_from_initial_option_prices(initial_prices: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
     require!(b > 0, ErrorCode::MathOverflow);
     require!(initial_prices.len() >= 2 && initial_prices.len() <= Market::MAX_OPTIONS, ErrorCode::InvalidOptionsCount);
 
@@ -425,7 +437,7 @@ fn lmsr_seed_q_vec_from_initial_option_prices(initial_prices: &Vec<u64>, b: u64)
 /// Closed form for multi-LMSR when only q_idx changes:
 /// Let S = sum exp(q_i/b), ek = exp(q_k/b), ex = exp(x/b)
 /// Then exp(dq/b) = 1 + (S/ek)*(ex - 1)
-fn lmsr_buy_option_from_amount(
+pub fn lmsr_buy_option_from_amount(
     x_net: u64,
     qs: &Vec<u64>,
     idx: usize,
@@ -462,7 +474,7 @@ fn lmsr_buy_option_from_amount(
 /// Sell option `idx` shares; returns payout_before_fee and new_prices.
 /// Refund = C(q) - C(q - dq) = b*ln(S / S')
 /// With only q_k changing: S' = S - ek + ek*exp(-dq/b)
-fn lmsr_sell_option_to_amount(
+pub fn lmsr_sell_option_to_amount(
     shares: u64,
     qs: &Vec<u64>,
     idx: usize,

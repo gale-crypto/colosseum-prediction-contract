@@ -1,4 +1,12 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::pubkey;
+use anchor_lang::system_program;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+
+use crate::errors::ErrorCode;
+use crate::state::AdminConfig;
+
 
 pub fn add_admin(ctx: Context<ManageAdmin>, admin_address: Pubkey) -> Result<()> {
     let admin_config = &mut ctx.accounts.admin_config;
