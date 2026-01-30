@@ -9,7 +9,7 @@ pub mod events;
 
 use ixs::*;
 
-use state::{MarketMethod, MarketOutcome};
+use crate::state::{MarketMethod, MarketOutcome};
 
 declare_id!("4AEAbwpQHVr5ZG57sU5WB3xm5TGhRYCngpKLVV4C9ThV");
 
@@ -61,6 +61,13 @@ pub mod colosseum_prediction {
         return ixs::buy_binary_usdc::buy_no_usdc(ctx, amount);
     }
 
+    pub fn buy_km_with_usdt(
+        ctx: Context<ProxySwapBaseIn>,
+        amount_in: u64
+    ) -> Result<()> {
+        return ixs::buy_binary_usdt::buy_km_with_usdt(ctx, amount_in);
+    }
+    
     // -----------------------
     // SELL (Binary)
     // -----------------------

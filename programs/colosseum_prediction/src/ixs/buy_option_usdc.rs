@@ -6,7 +6,7 @@ use crate::errors::ErrorCode;
 use crate::state::{Market, MarketMethod, Position, AdminConfig};
 use crate::constants::{USDC_MINT_PUBKEY, PRICE_SCALE};
 use crate::events::BuyOptionEvent;
-use crate::utils::{prepare_market_id_seed, ensure_position_initialized, lmsr_buy_option_from_amount, calc_fee};
+use crate::utils::{prepare_market_id_seed, ensure_position_initialized, lmsr_buy_option_from_amount, calc_fee_split};
 
 pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u64) -> Result<()> {
     let market = &mut ctx.accounts.market;
@@ -15,9 +15,9 @@ pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u6
     let idx = option_index as usize;
     require!(idx < market.options.len(), ErrorCode::InvalidOptionIndex);
 
-    let (fee_amount, amount_after_fee) = calc_fee(amount)?;
+    let (fee_total, amount_after_fee, fee_buyback, fee_referral, fee_treasury) = calc_fee_split(amount)?;
 
-    if fee_amount > 0 {
+    if fee_treasury > 0 {
         token::transfer(
             CpiContext::new(
                 ctx.accounts.token_program.to_account_info(),
@@ -27,27 +27,45 @@ pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u6
                     authority: ctx.accounts.user.to_account_info(),
                 },
             ),
-            fee_amount,
+            fee_treasury,
         )?;
     }
 
-    token::transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.user_token_account.to_account_info(),
-                to: ctx.accounts.market_vault.to_account_info(),
-                authority: ctx.accounts.user.to_account_info(),
-            },
-        ),
-        amount_after_fee,
-    )?;
+    let position = &mut ctx.accounts.position;    
+
+    let use_referrer = (position.referrer != Pubkey::default() && position.referrer.key() == ctx.accounts.referrer.as_ref().unwrap().key()) || ctx.accounts.referrer.is_some()
+    && ctx.accounts.referrer.as_ref().unwrap().key() != Pubkey::default();
+    let referrer = if position.user == Pubkey::default() {
+        ctx.accounts.referrer.as_ref().unwrap().key() 
+     } else { 
+        Pubkey::default()
+     };
+
+    if fee_referral > 0 {
+        let to_account = if use_referrer {
+            ctx.accounts.referrer_usdt_ata.as_ref().unwrap().to_account_info()
+        } else {
+            ctx.accounts.fee_recipient_token_account.to_account_info()
+        };
+
+        token::transfer(
+            CpiContext::new(
+                ctx.accounts.token_program.to_account_info(),
+                Transfer {
+                    from: ctx.accounts.user_token_account.to_account_info(),
+                    to: to_account,
+                    authority: ctx.accounts.user.to_account_info(),
+                },
+            ),
+            fee_referral,
+        )?;
+    }    
 
     let b = market.virtual_liquidity;
     let (shares_out, new_prices) = lmsr_buy_option_from_amount(amount_after_fee, &market.option_volumes, idx, b)?;
 
     let position = &mut ctx.accounts.position;
-    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, ctx.bumps.position, market);
+    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, ctx.bumps.position, market, referrer);
 
     require!(position.option_shares.len() == market.options.len(), ErrorCode::InvalidPositionAccount);
     position.option_shares[idx] = position.option_shares[idx].checked_add(shares_out).ok_or(ErrorCode::MathOverflow)?;
@@ -56,7 +74,7 @@ pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u6
     .checked_add(amount_after_fee)
     .ok_or(ErrorCode::MathOverflow)?;
     position.fees_paid = position.fees_paid
-    .checked_add(fee_amount)
+    .checked_add(fee_total)
     .ok_or(ErrorCode::MathOverflow)?;         
 
     market.total_option_shares[idx] = market.total_option_shares[idx].checked_add(shares_out).ok_or(ErrorCode::MathOverflow)?;
@@ -87,7 +105,7 @@ pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u6
         is_usdt: false, // set false in USDC variant
         option_index,
         amount_in: amount,
-        fee: fee_amount,
+        fee: fee_total,
         amount_after_fee,
         shares_out,
         option_prices_after: market.option_prices.clone(), // already updated to new_prices
@@ -135,6 +153,15 @@ pub struct BuyOptionUSDC<'info> {
         associated_token::authority = market
     )]
     pub market_vault: Account<'info, TokenAccount>,
+
+    pub referrer: Option<SystemAccount<'info>>,
+
+    #[account(
+        mut,
+        associated_token::mint = usdc_mint,
+        associated_token::authority = referrer
+    )]
+    pub referrer_usdt_ata:  Option<Box<Account<'info, TokenAccount>>>,      
 
     #[account(
         mut,

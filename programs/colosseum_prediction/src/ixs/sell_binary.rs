@@ -22,7 +22,7 @@ pub fn sell_yes(ctx: Context<SellShares>, shares: u64) -> Result<()> {
 
     let position = &mut ctx.accounts.position;
     let pos_bump = position.bump;
-    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, pos_bump, market);
+    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, pos_bump, market, Pubkey::default());
     require!(position.yes_shares >= shares, ErrorCode::InsufficientShares);
 
     let b = market.virtual_liquidity;
@@ -167,7 +167,7 @@ pub fn sell_no(ctx: Context<SellShares>, shares: u64) -> Result<()> {
 
     let position = &mut ctx.accounts.position;
     let pos_bump = position.bump;
-    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, pos_bump, market);
+    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, pos_bump, market, Pubkey::default());
     require!(position.no_shares >= shares, ErrorCode::InsufficientShares);
 
     let b = market.virtual_liquidity;

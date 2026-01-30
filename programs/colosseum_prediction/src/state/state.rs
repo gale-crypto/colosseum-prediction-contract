@@ -140,6 +140,7 @@ impl Position {
     pub const LEN: usize =
         32 + // user
         4 + Self::MAX_MARKET_ID + // market_id
+        32 + // referrer
         8 + 8 + // yes_shares, no_shares
         4 + (Self::MAX_OPTIONS * 8) + // option_shares
         8 + 8 + // yes_cost, no_cost

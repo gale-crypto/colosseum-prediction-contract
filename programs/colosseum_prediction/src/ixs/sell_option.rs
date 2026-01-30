@@ -18,7 +18,7 @@ pub fn sell_option(ctx: Context<SellOption>, option_index: u8, shares: u64) -> R
 
     let position = &mut ctx.accounts.position;
     let pos_bump = position.bump;
-    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, pos_bump, market);
+    ensure_position_initialized(position, ctx.accounts.user.key(), &market.market_id, pos_bump, market, Pubkey::default());
     require!(position.option_shares.len() == market.options.len(), ErrorCode::InvalidPositionAccount);
     require!(position.option_shares[idx] >= shares, ErrorCode::InsufficientShares);
 
