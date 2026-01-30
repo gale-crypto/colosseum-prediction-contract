@@ -419,7 +419,8 @@ pub struct BuySharesWithUSDT<'info> {
     pub referrer: Option<SystemAccount<'info>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = user,
         associated_token::mint = usdt_mint,
         associated_token::authority = referrer
     )]

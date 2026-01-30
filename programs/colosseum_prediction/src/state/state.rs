@@ -152,6 +152,22 @@ impl Position {
         1; // bump
 }
 
+#[account]
+pub struct UserInfo {
+    pub user: Pubkey,
+    pub referrer: Pubkey,
+    pub total_referred_fees: u64,
+    pub bump: u8,
+}
+
+impl UserInfo {
+    pub const LEN: usize =
+        32 + // user
+        32 + // referrer
+        8 + // total_referred_fees
+        1; // bump
+}
+
 // =======================
 // Enums
 // =======================

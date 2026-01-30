@@ -68,7 +68,9 @@ describe("km_raffle_contract", async () => {
     [Buffer.from("position"), provider.wallet.publicKey.toBuffer(), Buffer.from(marketIdSeed)],
     program.programId
   );
-  console.log('Position PDA: ', positionPDA.toBase58());      
+  console.log('Position PDA: ', positionPDA.toBase58());
+
+
 
   const buyResult = await program.methods
   .buyKmWithUsdt(new anchor.BN(3000000))

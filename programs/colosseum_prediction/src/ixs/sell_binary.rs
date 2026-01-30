@@ -11,7 +11,7 @@ use crate::utils::{
     ensure_position_initialized,
     lmsr_sell_yes_to_amount,
     lmsr_sell_no_to_amount,
-    calc_fee,
+    calc_fee_split,
     split_payout,
     avg_cost_remove,
 };
@@ -29,7 +29,7 @@ pub fn sell_yes(ctx: Context<SellShares>, shares: u64) -> Result<()> {
     let (payout_before_fee, new_yes_price, new_no_price) =
         lmsr_sell_yes_to_amount(shares, market.yes_volume, market.no_volume, b)?;
 
-    let (fee_amount, payout_after_fee) = calc_fee(payout_before_fee)?;
+    let (fee_total, payout_after_fee, fee_buyback, fee_referral, fee_treasury) = calc_fee_split(payout_before_fee)?;
 
     let market_id_seed = prepare_market_id_seed(&market.market_id);
     let signer_seeds: &[&[&[u8]]] = &[&[b"market", &market_id_seed, &[market.bump]]];
@@ -38,35 +38,114 @@ pub fn sell_yes(ctx: Context<SellShares>, shares: u64) -> Result<()> {
     let usdc_balance = ctx.accounts.market_usdc_vault.amount;
 
     let (fee_usdt, fee_usdc, pay_usdt, pay_usdc) =
-        split_payout(payout_before_fee, payout_after_fee, fee_amount, usdt_balance, usdc_balance)?;
+        split_payout(payout_before_fee, payout_after_fee, fee_total, usdt_balance, usdc_balance)?;
+    
+    let referrer = position.referrer;
 
     if fee_usdt > 0 {
-        token::transfer(
-            CpiContext::new_with_signer(
-                ctx.accounts.token_program.to_account_info(),
-                Transfer {
-                    from: ctx.accounts.market_usdt_vault.to_account_info(),
-                    to: ctx.accounts.fee_recipient_usdt_account.to_account_info(),
-                    authority: market.to_account_info(),
-                },
-                signer_seeds,
-            ),
-            fee_usdt,
-        )?;
+        let fee_buyback_usdt = (fee_usdt as u128)
+            .checked_mul(fee_buyback as u128).ok_or(ErrorCode::MathOverflow)?
+            .checked_div(fee_total as u128).ok_or(ErrorCode::MathOverflow)? as u64;
+        let fee_referral_usdt = (fee_usdt as u128)
+            .checked_mul(fee_referral as u128).ok_or(ErrorCode::MathOverflow)?
+            .checked_div(fee_total as u128).ok_or(ErrorCode::MathOverflow)? as u64;
+        let fee_treasury_usdt = (fee_usdt as u128)
+            .checked_sub(fee_buyback_usdt).ok_or(ErrorCode::MathOverflow)?
+            .checked_sub(fee_referral_usdt).ok_or(ErrorCode::MathOverflow)?;
+
+        if referrer != Pubkey::default() && fee_referral_usdt > 0 {
+            token::transfer(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    Transfer {
+                        from: ctx.accounts.market_usdt_vault.to_account_info(),
+                        to: ctx.accounts.referrer_usdt_account.to_account_info(),
+                        authority: market.to_account_info(),
+                    },
+                    signer_seeds,
+                ),
+                fee_referral_usdt,
+            )?;
+
+            token::transfer(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    Transfer {
+                        from: ctx.accounts.market_usdt_vault.to_account_info(),
+                        to: ctx.accounts.fee_recipient_usdt_account.to_account_info(),
+                        authority: market.to_account_info(),
+                    },
+                    signer_seeds,
+                ),
+                fee_treasury_usdt,
+            )?;
+        } else {
+            token::transfer(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    Transfer {
+                        from: ctx.accounts.market_usdt_vault.to_account_info(),
+                        to: ctx.accounts.fee_recipient_usdt_account.to_account_info(),
+                        authority: market.to_account_info(),
+                    },
+                    signer_seeds,
+                ),
+                fee_treasury_usdt + fee_referral_usdt,
+            )?;
+        }
     }
     if fee_usdc > 0 {
-        token::transfer(
-            CpiContext::new_with_signer(
-                ctx.accounts.token_program.to_account_info(),
-                Transfer {
-                    from: ctx.accounts.market_usdc_vault.to_account_info(),
-                    to: ctx.accounts.fee_recipient_usdc_account.to_account_info(),
-                    authority: market.to_account_info(),
-                },
-                signer_seeds,
-            ),
-            fee_usdc,
-        )?;
+        let fee_buyback_usdc = (fee_usdc as u128)
+            .checked_mul(fee_buyback as u128).ok_or(ErrorCode::MathOverflow)?
+            .checked_div(fee_total as u128).ok_or(ErrorCode::MathOverflow)? as u64;
+        let fee_referral_usdc = (fee_usdc as u128)
+            .checked_mul(fee_referral as u128).ok_or(ErrorCode::MathOverflow)?
+            .checked_div(fee_total as u128).ok_or(ErrorCode::MathOverflow)? as u64;
+        let fee_treasury_usdc = (fee_usdc as u128)
+            .checked_sub(fee_buyback_usdc).ok_or(ErrorCode::MathOverflow)?
+            .checked_sub(fee_referral_usdc).ok_or(ErrorCode::MathOverflow)?;
+
+        if referrer != Pubkey::default() && fee_referral_usdc > 0 {
+            token::transfer(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    Transfer {
+                        from: ctx.accounts.market_usdt_vault.to_account_info(),
+                        to: ctx.accounts.referrer_usdc_account.to_account_info(),
+                        authority: market.to_account_info(),
+                    },
+                    signer_seeds,
+                ),
+                fee_referral_usdt,
+            )?;
+
+
+            token::transfer(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    Transfer {
+                        from: ctx.accounts.market_usdc_vault.to_account_info(),
+                        to: ctx.accounts.fee_recipient_usdc_account.to_account_info(),
+                        authority: market.to_account_info(),
+                    },
+                    signer_seeds,
+                ),
+                fee_treasury_usdc,
+            )?;
+        } else {
+            token::transfer(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    Transfer {
+                        from: ctx.accounts.market_usdc_vault.to_account_info(),
+                        to: ctx.accounts.fee_recipient_usdc_account.to_account_info(),
+                        authority: market.to_account_info(),
+                    },
+                    signer_seeds,
+                ),
+                fee_treasury_usdc + fee_referral_usdc,
+            )?;
+        }
     }
     if pay_usdt > 0 {
         token::transfer(
@@ -148,7 +227,7 @@ pub fn sell_yes(ctx: Context<SellShares>, shares: u64) -> Result<()> {
         side_yes: true,
         shares_in: shares,
         payout_before_fee,
-        fee: fee_amount,
+        fee: fee_total,
         payout_after_fee,
         yes_price_after: new_yes_price,
         no_price_after: new_no_price,
@@ -357,6 +436,20 @@ pub struct SellShares<'info> {
         associated_token::authority = market
     )]
     pub market_usdc_vault: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        mut,
+        associated_token::mint = usdt_mint,
+        associated_token::authority = position.referrer
+    )]
+    pub referrer_usdt_account: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        mut,
+        associated_token::mint = usdc_mint,
+        associated_token::authority = position.referrer
+    )]
+    pub referrer_usdc_account: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
