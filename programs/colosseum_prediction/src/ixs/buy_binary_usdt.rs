@@ -23,7 +23,7 @@ pub fn buy_yes_usdt(ctx: Context<BuySharesWithUSDT>, amount: u64) -> Result<()> 
                     authority: ctx.accounts.user.to_account_info(),
                 },
             ),
-            fee_treasury,
+            fee_treasury + fee_buyback,
         )?;
     }
 
@@ -209,7 +209,7 @@ pub fn buy_no_usdt(ctx: Context<BuySharesWithUSDT>, amount: u64) -> Result<()> {
                     authority: ctx.accounts.user.to_account_info(),
                 },
             ),
-            fee_treasury,
+            fee_treasury + fee_buyback,
         )?;
     }
 

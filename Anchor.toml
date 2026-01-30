@@ -12,7 +12,7 @@ colosseum_prediction = "4AEAbwpQHVr5ZG57sU5WB3xm5TGhRYCngpKLVV4C9ThV"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "https://devnet.helius-rpc.com/?api-key=3d34ed91-d931-4bf5-a6e4-b7486a1b7c1f"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

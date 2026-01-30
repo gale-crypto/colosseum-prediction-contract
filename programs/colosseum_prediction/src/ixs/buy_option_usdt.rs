@@ -27,7 +27,7 @@ pub fn buy_option_usdt(ctx: Context<BuyOptionUSDT>, option_index: u8, amount: u6
                     authority: ctx.accounts.user.to_account_info(),
                 },
             ),
-            fee_treasury,
+            fee_treasury + fee_buyback,
         )?;
     }
 
