@@ -408,13 +408,13 @@ pub struct BuySharesWithUSDT<'info> {
     )]
     pub market_vault: Box<Account<'info, TokenAccount>>,
 
-    #[account(
-        init_if_needed, 
-        payer = user,
-        associated_token::mint = km_mint,
-        associated_token::authority = user
-    )]
-    pub km_user_vault: Box<Account<'info, TokenAccount>>,
+    // #[account(
+    //     init_if_needed, 
+    //     payer = user,
+    //     associated_token::mint = km_mint,
+    //     associated_token::authority = user
+    // )]
+    // pub km_user_vault: Box<Account<'info, TokenAccount>>,
 
     pub referrer: Option<SystemAccount<'info>>,
 
@@ -436,8 +436,8 @@ pub struct BuySharesWithUSDT<'info> {
     #[account(constraint = usdt_mint.key() == USDT_MINT_PUBKEY @ ErrorCode::InvalidMintAddress)]
     pub usdt_mint: Box<Account<'info, Mint>>,
 
-    #[account(constraint = km_mint.key() == KM_MINT_PUBKEY @ ErrorCode::InvalidMintAddress)]
-    pub km_mint: Box<Account<'info, Mint>>,
+    // #[account(constraint = km_mint.key() == KM_MINT_PUBKEY @ ErrorCode::InvalidMintAddress)]
+    // pub km_mint: Box<Account<'info, Mint>>,
 
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
