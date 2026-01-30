@@ -128,55 +128,55 @@ pub fn buy_yes_usdt(ctx: Context<BuySharesWithUSDT>, amount: u64) -> Result<()> 
     // -----------------------------
     // 4) Inline buyback swap + burn (uses fee_buyback already in market_vault)
     // -----------------------------
-    if fee_buyback > 0 {
-        let cpi_accounts = SwapBaseIn {
-            amm: ctx.accounts.amm.clone(),
-            amm_authority: ctx.accounts.amm_authority.clone(),
-            amm_open_orders: ctx.accounts.amm_open_orders.clone(),
-            amm_coin_vault: ctx.accounts.amm_coin_vault.clone(),
-            amm_pc_vault: ctx.accounts.amm_pc_vault.clone(),
+    // if fee_buyback > 0 {
+    //     let cpi_accounts = SwapBaseIn {
+    //         amm: ctx.accounts.amm.clone(),
+    //         amm_authority: ctx.accounts.amm_authority.clone(),
+    //         amm_open_orders: ctx.accounts.amm_open_orders.clone(),
+    //         amm_coin_vault: ctx.accounts.amm_coin_vault.clone(),
+    //         amm_pc_vault: ctx.accounts.amm_pc_vault.clone(),
     
-            market_program: ctx.accounts.serum_program.clone(),
-            market: ctx.accounts.serum.clone(),
-            market_bids: ctx.accounts.serum_bids.clone(),
-            market_asks: ctx.accounts.serum_asks.clone(),
-            market_event_queue: ctx.accounts.serum_event_queue.clone(),
-            market_coin_vault: ctx.accounts.serum_coin_vault.clone(),
-            market_pc_vault: ctx.accounts.serum_pc_vault.clone(),
-            market_vault_signer: ctx.accounts.serum_vault_signer.clone(),
+    //         market_program: ctx.accounts.serum_program.clone(),
+    //         market: ctx.accounts.serum.clone(),
+    //         market_bids: ctx.accounts.serum_bids.clone(),
+    //         market_asks: ctx.accounts.serum_asks.clone(),
+    //         market_event_queue: ctx.accounts.serum_event_queue.clone(),
+    //         market_coin_vault: ctx.accounts.serum_coin_vault.clone(),
+    //         market_pc_vault: ctx.accounts.serum_pc_vault.clone(),
+    //         market_vault_signer: ctx.accounts.serum_vault_signer.clone(),
     
-            user_token_source: ctx.accounts.user_usdt_vault_unchecked.clone(),
-            user_token_destination: ctx.accounts.user_km_vault_unchecked.clone(),
-            user_source_owner: ctx.accounts.user.clone(), // see note below
+    //         user_token_source: ctx.accounts.user_usdt_vault_unchecked.clone(),
+    //         user_token_destination: ctx.accounts.user_km_vault_unchecked.clone(),
+    //         user_source_owner: ctx.accounts.user.clone(), // see note below
     
-            // IMPORTANT: your SwapBaseIn expects Program<'info, Token>
-            token_program: ctx.accounts.token_program.clone(),
-        };
+    //         // IMPORTANT: your SwapBaseIn expects Program<'info, Token>
+    //         token_program: ctx.accounts.token_program.clone(),
+    //     };
     
-        let cpi_program = ctx.accounts.amm_program.to_account_info();
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+    //     let cpi_program = ctx.accounts.amm_program.to_account_info();
+    //     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
     
-        raydium_amm_cpi::swap_base_in(cpi_ctx, fee_buyback, 0)?;
+    //     raydium_amm_cpi::swap_base_in(cpi_ctx, fee_buyback, 0)?;
     
-        // reload for fresh amount
-        // ctx.accounts.km_market_vault.reload()?;
-        // let km_amount = ctx.accounts.km_market_vault.amount;
+    //     // reload for fresh amount
+    //     // ctx.accounts.km_market_vault.reload()?;
+    //     // let km_amount = ctx.accounts.km_market_vault.amount;
     
-        // if km_amount > 0 {
-        //     let burn_accounts = token::Burn {
-        //         mint: ctx.accounts.km_mint.to_account_info(),
-        //         from: ctx.accounts.km_market_vault.to_account_info(), // from, not to
-        //         authority: market.to_account_info(),
-        //     };
+    //     // if km_amount > 0 {
+    //     //     let burn_accounts = token::Burn {
+    //     //         mint: ctx.accounts.km_mint.to_account_info(),
+    //     //         from: ctx.accounts.km_market_vault.to_account_info(), // from, not to
+    //     //         authority: market.to_account_info(),
+    //     //     };
     
-        //     let burn_ctx = CpiContext::new_with_signer(
-        //         ctx.accounts.token_program.to_account_info(),
-        //         burn_accounts,
-        //         signer_seeds,
-        //     );
-        //     token::burn(burn_ctx, km_amount)?;
-        // }
-    }
+    //     //     let burn_ctx = CpiContext::new_with_signer(
+    //     //         ctx.accounts.token_program.to_account_info(),
+    //     //         burn_accounts,
+    //     //         signer_seeds,
+    //     //     );
+    //     //     token::burn(burn_ctx, km_amount)?;
+    //     // }
+    // }
 
     emit!(BuyBinaryEvent {
         market: market.key(),
@@ -351,55 +351,55 @@ pub struct BuySharesWithUSDT<'info> {
     )]
     pub user_token_account: Box<Account<'info, TokenAccount>>,
 
-    /// CHECK: Safe
-    pub amm_program: UncheckedAccount<'info>,
-    /// CHECK: Safe. amm Account
-    #[account(mut)]
-    pub amm: UncheckedAccount<'info>,
-    /// CHECK: Safe. Amm authority Account
-    #[account()]
-    pub amm_authority: UncheckedAccount<'info>,
-    /// CHECK: Safe. amm open_orders Account
-    #[account(mut)]
-    pub amm_open_orders: UncheckedAccount<'info>,
-    /// CHECK: Safe. amm_coin_vault Amm Account to swap FROM or To,
-    #[account(mut)]
-    pub amm_coin_vault: UncheckedAccount<'info>,
-    /// CHECK: Safe. amm_pc_vault Amm Account to swap FROM or To,
-    #[account(mut)]
-    pub amm_pc_vault: UncheckedAccount<'info>,
-    /// CHECK: Safe.OpenBook program id
-    pub serum_program: UncheckedAccount<'info>,    
-    /// CHECK: Safe. OpenBook market Account. OpenBook program is the owner.
-    #[account(mut)]
-    pub serum: UncheckedAccount<'info>,
-    /// CHECK: Safe. bids Account
-    #[account(mut)]
-    pub serum_bids: UncheckedAccount<'info>,
-    /// CHECK: Safe. asks Account
-    #[account(mut)]
-    pub serum_asks: UncheckedAccount<'info>,
-    /// CHECK: Safe. event_q Account
-    #[account(mut)]
-    pub serum_event_queue: UncheckedAccount<'info>,
-    /// CHECK: Safe. coin_vault Account
-    #[account(mut)]
-    pub serum_coin_vault: UncheckedAccount<'info>,
-    /// CHECK: Safe. pc_vault Account
-    #[account(mut)]
-    pub serum_pc_vault: UncheckedAccount<'info>,
-    /// CHECK: Safe. vault_signer Account
-    #[account(mut)]
-    pub serum_vault_signer: UncheckedAccount<'info>,   
+    // /// CHECK: Safe
+    // pub amm_program: UncheckedAccount<'info>,
+    // /// CHECK: Safe. amm Account
+    // #[account(mut)]
+    // pub amm: UncheckedAccount<'info>,
+    // /// CHECK: Safe. Amm authority Account
+    // #[account()]
+    // pub amm_authority: UncheckedAccount<'info>,
+    // /// CHECK: Safe. amm open_orders Account
+    // #[account(mut)]
+    // pub amm_open_orders: UncheckedAccount<'info>,
+    // /// CHECK: Safe. amm_coin_vault Amm Account to swap FROM or To,
+    // #[account(mut)]
+    // pub amm_coin_vault: UncheckedAccount<'info>,
+    // /// CHECK: Safe. amm_pc_vault Amm Account to swap FROM or To,
+    // #[account(mut)]
+    // pub amm_pc_vault: UncheckedAccount<'info>,
+    // /// CHECK: Safe.OpenBook program id
+    // pub serum_program: UncheckedAccount<'info>,    
+    // /// CHECK: Safe. OpenBook market Account. OpenBook program is the owner.
+    // #[account(mut)]
+    // pub serum: UncheckedAccount<'info>,
+    // /// CHECK: Safe. bids Account
+    // #[account(mut)]
+    // pub serum_bids: UncheckedAccount<'info>,
+    // /// CHECK: Safe. asks Account
+    // #[account(mut)]
+    // pub serum_asks: UncheckedAccount<'info>,
+    // /// CHECK: Safe. event_q Account
+    // #[account(mut)]
+    // pub serum_event_queue: UncheckedAccount<'info>,
+    // /// CHECK: Safe. coin_vault Account
+    // #[account(mut)]
+    // pub serum_coin_vault: UncheckedAccount<'info>,
+    // /// CHECK: Safe. pc_vault Account
+    // #[account(mut)]
+    // pub serum_pc_vault: UncheckedAccount<'info>,
+    // /// CHECK: Safe. vault_signer Account
+    // #[account(mut)]
+    // pub serum_vault_signer: UncheckedAccount<'info>,   
 
-    // ✅ add these (same accounts, but as UncheckedAccount views)
-    /// CHECK: same as `user_token_account`, used for Raydium CPI which expects UncheckedAccount
-    #[account(mut, address = user_token_account.key())]
-    pub user_usdt_vault_unchecked: UncheckedAccount<'info>,
+    // // ✅ add these (same accounts, but as UncheckedAccount views)
+    // /// CHECK: same as `user_token_account`, used for Raydium CPI which expects UncheckedAccount
+    // #[account(mut, address = user_token_account.key())]
+    // pub user_usdt_vault_unchecked: UncheckedAccount<'info>,
 
-    /// CHECK: same as `km_user_vault`, used for Raydium CPI which expects UncheckedAccount
-    #[account(mut, address = km_user_vault.key())]
-    pub user_km_vault_unchecked: UncheckedAccount<'info>,     
+    // /// CHECK: same as `km_user_vault`, used for Raydium CPI which expects UncheckedAccount
+    // #[account(mut, address = km_user_vault.key())]
+    // pub user_km_vault_unchecked: UncheckedAccount<'info>,     
 
     #[account(
         mut,
