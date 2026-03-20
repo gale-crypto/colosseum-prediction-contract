@@ -1,12 +1,17 @@
 use anchor_lang::prelude::*;
 
 #[constant]
-pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
-pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
-pub const KM_MINT_PUBKEY: Pubkey = pubkey!("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
+// pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
+// pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
+// pub const KM_MINT_PUBKEY: Pubkey = pubkey!("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
+
+pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+pub const KM_MINT_PUBKEY: Pubkey = pubkey!("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");
 
 // Market creation fee: 0.005 SOL = 5_000_000 lamports
-pub const MARKET_CREATION_FEE: u64 = 5_000_000;
+// pub const MARKET_CREATION_FEE: u64 = 5_000_000;
+pub const MARKET_CREATION_FEE: u64 = 420_000_000;
 
 /// Raydium Legacy AMM v4 program id (MAINNET).
 /// If you are on devnet, replace with the devnet Raydium v4 id.
@@ -25,6 +30,10 @@ pub const FEE_TOTAL: u64 = 14_200;      // 1.42%
 pub const FEE_BUYBACK: u64 = 4_200;     // 0.42%
 pub const FEE_REFERRAL: u64 = 3_000;    // 0.30%
 pub const FEE_TREASURY: u64 = 7_000;    // 0.70%
+
+pub const CREDIT_FEE: u64 = 58_000;
+pub const CREDIT_BURN_FEE: u64 = 42_000;
+
 
 // LMSR liquidity parameter "b" (stored in Market.virtual_liquidity)
 pub const DEFAULT_VIRTUAL_LIQUIDITY: u64 = 1_000_000_000; // 1000.000000

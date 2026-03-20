@@ -372,7 +372,21 @@ pub fn sell_no(ctx: Context<SellShares>, shares: u64) -> Result<()> {
             )?;
         }
     }
-
+    
+    if pay_usdt > 0 {
+        token::transfer(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                Transfer {
+                    from: ctx.accounts.market_usdt_vault.to_account_info(),
+                    to: ctx.accounts.user_usdt_token_account.to_account_info(),
+                    authority: market.to_account_info(),
+                },
+                signer_seeds,
+            ),
+            pay_usdt,
+        )?;
+    }
     if pay_usdc > 0 {
         token::transfer(
             CpiContext::new_with_signer(

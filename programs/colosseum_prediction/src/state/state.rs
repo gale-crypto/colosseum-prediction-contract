@@ -193,22 +193,22 @@ pub enum MarketOutcome {
     Cancelled,
 }
 
-// Helper account bundle for Raydium swap (keep it tidy)
-#[derive(Clone)]
-pub struct RaydiumSwapAccounts<'info> {
-    pub amm_program: AccountInfo<'info>,
-    pub amm: AccountInfo<'info>,
-    pub amm_authority: AccountInfo<'info>,
-    pub amm_open_orders: AccountInfo<'info>,
-    pub amm_coin_vault: AccountInfo<'info>,
-    pub amm_pc_vault: AccountInfo<'info>,
-    pub market_program: AccountInfo<'info>,
-    pub market: AccountInfo<'info>,
-    pub market_bids: AccountInfo<'info>,
-    pub market_asks: AccountInfo<'info>,
-    pub market_event_queue: AccountInfo<'info>,
-    pub market_coin_vault: AccountInfo<'info>,
-    pub market_pc_vault: AccountInfo<'info>,
-    pub market_vault_signer: AccountInfo<'info>,
-    pub user_token_source: Account<'info, TokenAccount>,
-}
+// // Helper account bundle for Raydium swap (keep it tidy)
+// #[derive(Clone)]
+// pub struct RaydiumSwapAccounts<'info> {
+//     pub amm_program: AccountInfo<'info>,
+//     pub amm: AccountInfo<'info>,
+//     pub amm_authority: AccountInfo<'info>,
+//     pub amm_open_orders: AccountInfo<'info>,
+//     pub amm_coin_vault: AccountInfo<'info>,
+//     pub amm_pc_vault: AccountInfo<'info>,
+//     pub market_program: AccountInfo<'info>,
+//     pub market: AccountInfo<'info>,
+//     pub market_bids: AccountInfo<'info>,
+//     pub market_asks: AccountInfo<'info>,
+//     pub market_event_queue: AccountInfo<'info>,
+//     pub market_coin_vault: AccountInfo<'info>,
+//     pub market_pc_vault: AccountInfo<'info>,
+//     pub market_vault_signer: AccountInfo<'info>,
+//     pub user_token_source: Account<'info, TokenAccount>,
+// }

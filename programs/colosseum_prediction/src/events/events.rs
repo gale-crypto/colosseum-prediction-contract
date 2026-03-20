@@ -28,7 +28,7 @@ pub struct SellBinaryEvent {
     pub fee: u64,
     pub payout_after_fee: u64,
     pub yes_price_after: u64,
-    pub no_price_after: u64,
+    pub no_price_after: u64,    
     pub avg_price: u64,
     pub real_price: u64,
     pub pay_usdt: u64,
@@ -77,3 +77,14 @@ pub struct SellOptionEvent {
     pub pay_usdt: u64,
     pub pay_usdc: u64,
 }
+
+
+// #[event]
+// pub struct BuyCreditUsdtEvent {
+//     pub market: Pubkey,
+//     pub payer: Pubkey,
+//     pub option: u64,
+//     pub amount_in: u64,
+//     pub fee: u64,
+//     pub amount_after_fee: u64,1
+// }

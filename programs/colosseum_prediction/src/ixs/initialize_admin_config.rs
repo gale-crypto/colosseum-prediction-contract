@@ -48,6 +48,28 @@ pub struct InitializeAdminConfig<'info> {
     )]
     pub fee_recipient_usdc_account: Account<'info, TokenAccount>,
 
+    // #[account(
+    //     mut,
+    //     seeds = [b"strike_reserve"],
+    // )]
+    // pub strike_reserve: SystemAccount<'info>,
+
+    // #[account(
+    //     init_if_needed,
+    //     payer = authority,
+    //     associated_token::mint = usdt_mint,
+    //     associated_token::authority = strike_reserve
+    // )]  
+    // pub strike_reserve_usdt_account: Account<'info, TokenAccount>,
+
+    // #[account(
+    //     init_if_needed,
+    //     payer = authority,
+    //     associated_token::mint = usdc_mint,
+    //     associated_token::authority = strike_reserve
+    // )]
+    // pub strike_reserve_usdc_account: Account<'info, TokenAccount>,
+
     #[account(mut, constraint = usdt_mint.key() == USDT_MINT_PUBKEY @ ErrorCode::InvalidMintAddress)]
     pub usdt_mint: Account<'info, Mint>,
 

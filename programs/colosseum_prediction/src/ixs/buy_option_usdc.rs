@@ -33,33 +33,26 @@ pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u6
 
     let position = &mut ctx.accounts.position;    
 
-    let use_referrer = (position.referrer != Pubkey::default() && position.referrer.key() == ctx.accounts.referrer.as_ref().unwrap().key()) || ctx.accounts.referrer.is_some()
-    && ctx.accounts.referrer.as_ref().unwrap().key() != Pubkey::default();
+    let use_referrer = (position.referrer != Pubkey::default() && position.referrer.key() == ctx.accounts.referrer.key()) || (position.referrer == Pubkey::default());
     let referrer = if position.user == Pubkey::default() {
-        ctx.accounts.referrer.as_ref().unwrap().key() 
+        ctx.accounts.referrer.key() 
      } else { 
         Pubkey::default()
      };
 
     if fee_referral > 0 {
-        let to_account = if use_referrer {
-            ctx.accounts.referrer_usdt_ata.as_ref().unwrap().to_account_info()
-        } else {
-            ctx.accounts.fee_recipient_token_account.to_account_info()
-        };
-
         token::transfer(
             CpiContext::new(
                 ctx.accounts.token_program.to_account_info(),
                 Transfer {
                     from: ctx.accounts.user_token_account.to_account_info(),
-                    to: to_account,
+                    to: ctx.accounts.referrer_usdc_ata.to_account_info(),
                     authority: ctx.accounts.user.to_account_info(),
                 },
             ),
             fee_referral,
         )?;
-    }    
+    }
 
     let b = market.virtual_liquidity;
     let (shares_out, new_prices) = lmsr_buy_option_from_amount(amount_after_fee, &market.option_volumes, idx, b)?;
@@ -154,14 +147,14 @@ pub struct BuyOptionUSDC<'info> {
     )]
     pub market_vault: Account<'info, TokenAccount>,
 
-    pub referrer: Option<SystemAccount<'info>>,
+    pub referrer: SystemAccount<'info>,
 
     #[account(
         mut,
         associated_token::mint = usdc_mint,
         associated_token::authority = referrer
     )]
-    pub referrer_usdt_ata:  Option<Box<Account<'info, TokenAccount>>>,      
+    pub referrer_usdc_ata: Box<Account<'info, TokenAccount>>,      
 
     #[account(
         mut,

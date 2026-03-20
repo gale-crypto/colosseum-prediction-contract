@@ -167,9 +167,8 @@ pub struct InitializeMarket<'info> {
     #[account(mut, constraint = usdc_mint.key() == USDC_MINT_PUBKEY @ ErrorCode::InvalidMintAddress)]
     pub usdc_mint: Account<'info, Mint>,
 
-    /// CHECK:
-    #[account(mut)]
-    pub fee_recipient: AccountInfo<'info>,
+    #[account(mut, constraint = fee_recipient.key() == admin_config.fee_recipient @ ErrorCode::InvalidFeeRecipient)]
+    pub fee_recipient: SystemAccount<'info>,
 
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,

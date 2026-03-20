@@ -11,123 +11,138 @@ function prepareMarketIdSeed(marketId: string): Buffer {
 }
 
 describe("km_raffle_contract", async () => {
-  // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
+  // // Configure the client to use the local cluster.
+  // const provider = anchor.AnchorProvider.env();
+  // anchor.setProvider(provider);
 
-  const program = anchor.workspace.colosseumPrediction as Program<ColosseumPrediction>;
-  const keypair = provider.wallet.payer;  
+  // const program = anchor.workspace.colosseumPrediction as Program<ColosseumPrediction>;
+  // const keypair = provider.wallet.payer;  
 
-  console.log("Program: ", program.programId.toBase58());
+  // console.log("Program: ", program.programId.toBase58());
 
-  const feeRecipient = new PublicKey("6yRZk5bb5nedXSwvpHERNVzePCsVQ4t3isPLEd7e4qRN");
-  const usdtMint = new PublicKey("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
-  const usdcMint = new PublicKey("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
-  const kmMint = new PublicKey("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
+  // // const feeRecipient = new PublicKey("6yRZk5bb5nedXSwvpHERNVzePCsVQ4t3isPLEd7e4qRN");
+  // // const usdtMint = new PublicKey("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
+  // // const usdcMint = new PublicKey("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
+  // // const kmMint = new PublicKey("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
 
-  const secondAdmin = new PublicKey("53RTLbmTdqAmpLBsmmF9QVbWGsUdsJ1YFzZntXxRiUZn");
+  // const feeRecipient = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
+  // const usdtMint = new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+  // const usdcMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  // const kmMint = new PublicKey("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");  
 
-  const wallet1 = new PublicKey("2GFD9nM9pmBVifcXiZtfGG124gg9ZskYFnqXCy5SGmJN");
-  // const wallet2 = new PublicKey("56NECkZWVMwTTUxL2mTaBkhGPRkhfmA5PsrgwkvJThQF");
-  // const wallet3 = new PublicKey("9dh3jDZGjnQfWzsSiinKna5zb5t9tLKQcfAiwqVRd4JV");
+  // const secondAdmin = new PublicKey("53RTLbmTdqAmpLBsmmF9QVbWGsUdsJ1YFzZntXxRiUZn");
 
-  const [adminConfigPDA, bump] = await PublicKey.findProgramAddress(
-    [Buffer.from("admin_config")],
-    program.programId
-  );
+  // // const wallet1 = new PublicKey("2GFD9nM9pmBVifcXiZtfGG124gg9ZskYFnqXCy5SGmJN");
+  // // const wallet2 = new PublicKey("56NECkZWVMwTTUxL2mTaBkhGPRkhfmA5PsrgwkvJThQF");
+  // // const wallet3 = new PublicKey("9dh3jDZGjnQfWzsSiinKna5zb5t9tLKQcfAiwqVRd4JV");
 
-  console.log("Admin Config PDA: ", adminConfigPDA.toBase58());
+  // const [adminConfigPDA, bump] = await PublicKey.findProgramAddress(
+  //   [Buffer.from("admin_config")],
+  //   program.programId
+  // );
 
-  const marketId = 'a63f9248-50ae-4684-b332-9eda17beb8d9';
-  const [marketPDA, marketBump] = await PublicKey.findProgramAddress(
-    [Buffer.from("market"), Buffer.from(marketId.slice(0, 32))],
-    program.programId
-  );
+  // console.log("Admin Config PDA: ", adminConfigPDA.toBase58());
 
-  const marketUsdtAccount = await getAssociatedTokenAddress(usdtMint, marketPDA, true);
-  const marketKMAccount = await getAssociatedTokenAddress(kmMint, marketPDA, true);
-  console.log('Market USDT Account: ', marketUsdtAccount.toBase58());
-  console.log('Market KM Account: ', marketKMAccount.toBase58());
-  const marketUsdtBalance = await provider.connection.getTokenAccountBalance(marketUsdtAccount).then(res => res.value.uiAmount);
-  console.log('Market USDT Balance: ', marketUsdtBalance);
+  // const feeRecipientUsdtAccount = await getAssociatedTokenAddress(usdtMint, feeRecipient);
+  // const feeRecipientUsdcAccount = await getAssociatedTokenAddress(usdcMint, feeRecipient);
+
+  // const marketId = 'a63f9248-50ae-4684-b332-9eda17beb8d9';
+  // const [marketPDA, marketBump] = await PublicKey.findProgramAddress(
+  //   [Buffer.from("market"), Buffer.from(marketId.slice(0, 32))],
+  //   program.programId
+  // );
+
+  // const marketUsdtAccount = await getAssociatedTokenAddress(usdtMint, marketPDA, true);
+  // const marketKMAccount = await getAssociatedTokenAddress(kmMint, marketPDA, true);
+  // console.log('Market USDT Account: ', marketUsdtAccount.toBase58());
+  // console.log('Market KM Account: ', marketKMAccount.toBase58());
+  // const marketUsdtBalance = await provider.connection.getTokenAccountBalance(marketUsdtAccount).then(res => res.value.uiAmount);
+  // console.log('Market USDT Balance: ', marketUsdtBalance);
   // const marketUsdcAccount = await getAssociatedTokenAddress(usdcMint, marketPDA, true);
   // console.log('Market USDC Account: ', marketUsdcAccount.toBase58());
-  const referrerUsdtAccount = await getAssociatedTokenAddress(usdtMint, wallet1);
+  // const referrerUsdtAccount = await getAssociatedTokenAddress(usdtMint, wallet1);
   // const marketUsdcBalance = await provider.connection.getTokenAccountBalance(marketUsdcAccount).then(res => res.value.uiAmount);
   // console.log('Market USDC Balance: ', marketUsdcBalance);
 
-  const userUsdtAccount = await getAssociatedTokenAddress(usdtMint, provider.wallet.publicKey);
-  const userKMAccount = await getAssociatedTokenAddress(kmMint, provider.wallet.publicKey);
+  // const userUsdtAccount = await getAssociatedTokenAddress(usdtMint, provider.wallet.publicKey);
+  // const userKMAccount = await getAssociatedTokenAddress(kmMint, provider.wallet.publicKey);
 
-  const marketIdSeed = prepareMarketIdSeed(marketId);
+  // const marketIdSeed = prepareMarketIdSeed(marketId);
   
-  const marketData = await program.account.market.fetch(marketPDA);
-  console.log('Market Data:', marketData.yesPrice.toNumber(), marketData.noPrice.toNumber(), marketData.yesVolume.toNumber(), marketData.noVolume.toNumber());
+  // const marketData = await program.account.market.fetch(marketPDA);
+  // console.log('Market Data:', marketData.yesPrice.toNumber(), marketData.noPrice.toNumber(), marketData.yesVolume.toNumber(), marketData.noVolume.toNumber());
 
-  const [positionPDA, positionBump] = await PublicKey.findProgramAddress(
-    [Buffer.from("position"), provider.wallet.publicKey.toBuffer(), Buffer.from(marketIdSeed)],
-    program.programId
-  );
-  console.log('Position PDA: ', positionPDA.toBase58());
+  // const [positionPDA, positionBump] = await PublicKey.findProgramAddress(
+  //   [Buffer.from("position"), provider.wallet.publicKey.toBuffer(), Buffer.from(marketIdSeed)],
+  //   program.programId
+  // );
+  // console.log('Position PDA: ', positionPDA.toBase58());
 
 
 
-  const buyResult = await program.methods
-  .buyKmWithUsdt(new anchor.BN(3000000))
-  .accounts({
-    // market: marketPDA,
-    // position: positionPDA,
-    // adminConfig: adminConfigPDA,
+  // const buyResult = await program.methods
+  // .buyKmWithUsdt(new anchor.BN(3000000))
+  // .accounts({
+  //   // market: marketPDA,
+  //   // position: positionPDA,
+  //   // adminConfig: adminConfigPDA,
 
-    // userTokenAccount: await getAssociatedTokenAddress(usdtMint, provider.wallet.publicKey),
+  //   // userTokenAccount: await getAssociatedTokenAddress(usdtMint, provider.wallet.publicKey),
 
-    ammProgram: new PublicKey("HWy1jotHpo6UqeQxx49dpYYdQB8wj9Qk9MdxwjLvDHB8"),
-    amm: new PublicKey("CWtf2nCwCD1ctJ7tF5dbgpv8GcnDm4mhWiXmc5Ev9jZ5"),
-    ammAuthority: new PublicKey("AhSQwzpJMskCCQ3GkWDZSA69xS5qK5s7jLejhK6sgYf1"),
-    ammOpenOrders: new PublicKey("9gUuaRpvNTi2hY4jAFxztWgzzCSxyJmpAwPKNg1QYZDB"),
-    ammCoinVault: new PublicKey("3JBhqvoyi8WPqaE2RfxwAjRV3Fy5QnKZbjpn49tHCrQv"),
-    ammPcVault: new PublicKey("8fWnHdmzicpUhmWWcexV8VDuqtu4Nkwoj5gEabLkC7ri"),
-    marketProgram: new PublicKey("EoTcMgcDRTJVZDMZWBoU6rhYHZfkNTVEAfz3uUJRcYGj"),
-    market: new PublicKey("3AwVe6kUMLv3TVg9A2io298UrAERHTpE2vTqP2goZuKB"),
-    marketBids: new PublicKey("9rJMksC8Dgyu2tDvUVQBCFsesqKVWuUKafRSxSxoDECw"),
-    marketAsks: new PublicKey("BTqrkB6MSN5dK17kbCb7mNFs7WTkQKsC4kVB43hS8VWo"),
-    marketEventQueue: new PublicKey("EizA17Etg8KBJ1f2tjmuRLqN2EbcgSipmjRMNpL7DhZq"),
-    marketCoinVault: new PublicKey("7FJ1TKcL9rievDEvCaU2vv4iBGBb8fAyjAJhpm29byun"),
-    marketPcVault: new PublicKey("48FC4KJrfZRSGCa9wbQGtECaqbqrCrQtBfMA3YctEmqY"),
-    marketVaultSigner: new PublicKey("FKzm5NdGcW9SVYNi2MAkAAUspL2PeYH1pBh2JtUnhLWR"),
+  //   ammProgram: new PublicKey("HWy1jotHpo6UqeQxx49dpYYdQB8wj9Qk9MdxwjLvDHB8"),
+  //   amm: new PublicKey("CWtf2nCwCD1ctJ7tF5dbgpv8GcnDm4mhWiXmc5Ev9jZ5"),
+  //   ammAuthority: new PublicKey("AhSQwzpJMskCCQ3GkWDZSA69xS5qK5s7jLejhK6sgYf1"),
+  //   ammOpenOrders: new PublicKey("9gUuaRpvNTi2hY4jAFxztWgzzCSxyJmpAwPKNg1QYZDB"),
+  //   ammCoinVault: new PublicKey("3JBhqvoyi8WPqaE2RfxwAjRV3Fy5QnKZbjpn49tHCrQv"),
+  //   ammPcVault: new PublicKey("8fWnHdmzicpUhmWWcexV8VDuqtu4Nkwoj5gEabLkC7ri"),
+  //   marketProgram: new PublicKey("EoTcMgcDRTJVZDMZWBoU6rhYHZfkNTVEAfz3uUJRcYGj"),
+  //   market: new PublicKey("3AwVe6kUMLv3TVg9A2io298UrAERHTpE2vTqP2goZuKB"),
+  //   marketBids: new PublicKey("9rJMksC8Dgyu2tDvUVQBCFsesqKVWuUKafRSxSxoDECw"),
+  //   marketAsks: new PublicKey("BTqrkB6MSN5dK17kbCb7mNFs7WTkQKsC4kVB43hS8VWo"),
+  //   marketEventQueue: new PublicKey("EizA17Etg8KBJ1f2tjmuRLqN2EbcgSipmjRMNpL7DhZq"),
+  //   marketCoinVault: new PublicKey("7FJ1TKcL9rievDEvCaU2vv4iBGBb8fAyjAJhpm29byun"),
+  //   marketPcVault: new PublicKey("48FC4KJrfZRSGCa9wbQGtECaqbqrCrQtBfMA3YctEmqY"),
+  //   marketVaultSigner: new PublicKey("FKzm5NdGcW9SVYNi2MAkAAUspL2PeYH1pBh2JtUnhLWR"),
 
-    userTokenSource: userUsdtAccount,
-    userTokenDestination: userKMAccount,
-    userSourceOwner: provider.wallet.publicKey,
-    tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+  //   userTokenSource: userUsdtAccount,
+  //   userTokenDestination: userKMAccount,
+  //   userSourceOwner: provider.wallet.publicKey,
+  //   tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
 
-    // userUsdtVaultUnchecked: userUsdtAccount,
-    // userKmVaultUnchecked: userKMAccount,
-    // marketVault: marketUsdtAccount, 
-    // kmUserVault: userKMAccount,
-    // referrer: wallet1,
-    // referrerUsdtAta: referrerUsdtAccount, 
-    // feeRecipientTokenAccount: await getAssociatedTokenAddress(usdtMint, feeRecipient),
-    // usdtMint: usdtMint,
-    // kmMint: kmMint,
-    // tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
-    // rent: SYSVAR_RENT_PUBKEY,
-    // systemProgram: anchor.web3.SystemProgram.programId,
-  })
-  .signers([keypair])
-  .simulate();
+  //   // userUsdtVaultUnchecked: userUsdtAccount,
+  //   // userKmVaultUnchecked: userKMAccount,
+  //   // marketVault: marketUsdtAccount, 
+  //   // kmUserVault: userKMAccount,
+  //   // referrer: wallet1,
+  //   // referrerUsdtAta: referrerUsdtAccount, 
+  //   // feeRecipientTokenAccount: await getAssociatedTokenAddress(usdtMint, feeRecipient),
+  //   // usdtMint: usdtMint,
+  //   // kmMint: kmMint,
+  //   // tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+  //   // rent: SYSVAR_RENT_PUBKEY,
+  //   // systemProgram: anchor.web3.SystemProgram.programId,
+  // })
+  // .signers([keypair])
+  // .simulate();
 
-  console.log('Buy Result:', buyResult)
+  // console.log('Buy Result:', buyResult)
 
   // it("Is initialized", async () => {
   //   const tx = await program.methods
   //     .initializeAdminConfig(
-  //       feeRecipient
+  //       // feeRecipient
   //     )
   //     .accounts({
   //       authority: provider.wallet.publicKey,
   //       adminConfig: adminConfigPDA,
+  //       feeRecipient: feeRecipient,
+  //       feeRecipientUsdtAccount: feeRecipientUsdtAccount,
+  //       feeRecipientUsdcAccount: feeRecipientUsdcAccount,
+  //       usdtMint: usdtMint,
+  //       usdcMint: usdcMint,
   //       systemProgram: anchor.web3.SystemProgram.programId,
+  //       tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+  //       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
   //     })
   //     .signers([keypair])
   //     .rpc();
@@ -135,7 +150,7 @@ describe("km_raffle_contract", async () => {
   // })
 
   // it("Add Admin", async () => {
-  //   const newAdmin = new PublicKey("Cits9FJaXscX2X2QRZbMvNZkfXgPx8jTytCgqbRkr5eN");
+  //   const newAdmin = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
   //   const tx = await program.methods
   //     .addAdmin(
   //       newAdmin

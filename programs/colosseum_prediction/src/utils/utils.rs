@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Burn, Token, TokenAccount};
 
 use crate::errors::ErrorCode;
-use crate::state::{Market, MarketMethod, Position, RaydiumSwapAccounts};
+use crate::state::{Market, MarketMethod, Position};
 use crate::constants::{
     PRICE_SCALE, EXP_CLAMP, MIN_PRICE, MAX_PRICE,
     FEE_TOTAL, FEE_BUYBACK, FEE_REFERRAL,

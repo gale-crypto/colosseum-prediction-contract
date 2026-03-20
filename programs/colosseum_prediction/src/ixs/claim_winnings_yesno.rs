@@ -6,7 +6,7 @@ use crate::errors::ErrorCode;
 use crate::state::{Market, MarketOutcome, Position, ResolutionStatus, AdminConfig};
 use crate::constants::{USDT_MINT_PUBKEY, USDC_MINT_PUBKEY, PRICE_SCALE};
 use crate::events::ClaimWinningsEvent;
-use crate::utils::{prepare_market_id_seed, calc_fee, split_payout};
+use crate::utils::{prepare_market_id_seed, calc_fee_split, split_payout};
 
 pub fn claim_winnings_yesno(ctx: Context<ClaimWinnings>) -> Result<()> {
     let market = &ctx.accounts.market;
@@ -89,7 +89,7 @@ pub fn claim_winnings_yesno(ctx: Context<ClaimWinnings>) -> Result<()> {
         .ok_or(ErrorCode::MathOverflow)?;
 
     position.fees_paid = position.fees_paid
-        .checked_add(fee_amount)
+        .checked_add(fee_total)
         .ok_or(ErrorCode::MathOverflow)?;
 
     // -----------------------------
@@ -102,10 +102,12 @@ pub fn claim_winnings_yesno(ctx: Context<ClaimWinnings>) -> Result<()> {
         split_payout(
             payout_before_fee,
             payout_after_fee,
-            fee_amount,
+            fee_total,
             usdt_balance,
             usdc_balance,
         )?;
+
+    let referrer = position.referrer;
 
     if fee_usdt > 0 {
         let fee_buyback_usdt = (fee_usdt as u128)
@@ -273,7 +275,7 @@ pub fn claim_winnings_yesno(ctx: Context<ClaimWinnings>) -> Result<()> {
         market: market.key(),
         payer: ctx.accounts.user.key(),
         payout_before_fee,
-        fee: fee_amount,
+        fee: fee_total,
         payout_after_fee,
         pay_usdt,
         pay_usdc,
@@ -336,15 +338,19 @@ pub struct ClaimWinnings<'info> {
     )]
     pub market_usdc_vault: Box<Account<'info, TokenAccount>>,
 
-    pub referrer: Option<SystemAccount<'info>>,
+    #[account(
+        mut,
+        associated_token::mint = usdt_mint,
+        associated_token::authority = position.referrer
+    )]
+    pub referrer_usdt_account: Box<Account<'info, TokenAccount>>,
 
     #[account(
-        init_if_needed,
-        payer = user,
-        associated_token::mint = usdt_mint,
-        associated_token::authority = referrer
+        mut,
+        associated_token::mint = usdc_mint,
+        associated_token::authority = position.referrer
     )]
-    pub referrer_usdt_ata:  Option<Box<Account<'info, TokenAccount>>>,    
+    pub referrer_usdc_account: Box<Account<'info, TokenAccount>>, 
 
     #[account(
         mut,
