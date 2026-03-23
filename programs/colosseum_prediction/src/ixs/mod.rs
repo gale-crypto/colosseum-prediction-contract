@@ -10,6 +10,9 @@ pub mod simulate_market_read_only;
 pub mod buy_option_usdt;
 pub mod buy_option_usdc;
 pub mod sell_option;
+pub mod buy_credit_usdt;
+pub mod buy_credit_usdc;
+pub mod buy_credit_sol;
 
 pub use initialize_market::*;
 pub use initialize_admin_config::*;
@@ -23,3 +26,6 @@ pub use simulate_market_read_only::*;
 pub use buy_option_usdt::*;
 pub use buy_option_usdc::*;
 pub use sell_option::*;
+pub use buy_credit_usdt::*;
+pub use buy_credit_usdc::*;
+pub use buy_credit_sol::*;

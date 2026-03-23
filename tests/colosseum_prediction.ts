@@ -11,40 +11,53 @@ function prepareMarketIdSeed(marketId: string): Buffer {
 }
 
 describe("km_raffle_contract", async () => {
-  // // Configure the client to use the local cluster.
-  // const provider = anchor.AnchorProvider.env();
-  // anchor.setProvider(provider);
+  // Configure the client to use the local cluster.
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
 
-  // const program = anchor.workspace.colosseumPrediction as Program<ColosseumPrediction>;
-  // const keypair = provider.wallet.payer;  
+  const program = anchor.workspace.colosseumPrediction as Program<ColosseumPrediction>;
+  const keypair = provider.wallet.payer;  
 
-  // console.log("Program: ", program.programId.toBase58());
+  console.log("Program: ", program.programId.toBase58());
 
-  // // const feeRecipient = new PublicKey("6yRZk5bb5nedXSwvpHERNVzePCsVQ4t3isPLEd7e4qRN");
-  // // const usdtMint = new PublicKey("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
-  // // const usdcMint = new PublicKey("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
-  // // const kmMint = new PublicKey("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
+  // const feeRecipient = new PublicKey("6yRZk5bb5nedXSwvpHERNVzePCsVQ4t3isPLEd7e4qRN");
+  // const usdtMint = new PublicKey("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
+  // const usdcMint = new PublicKey("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
+  // const kmMint = new PublicKey("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
 
-  // const feeRecipient = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
-  // const usdtMint = new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
-  // const usdcMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-  // const kmMint = new PublicKey("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");  
+  const feeRecipient = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
+  const usdtMint = new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+  const usdcMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  const kmMint = new PublicKey("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");  
 
-  // const secondAdmin = new PublicKey("53RTLbmTdqAmpLBsmmF9QVbWGsUdsJ1YFzZntXxRiUZn");
+  const secondAdmin = new PublicKey("53RTLbmTdqAmpLBsmmF9QVbWGsUdsJ1YFzZntXxRiUZn");
 
-  // // const wallet1 = new PublicKey("2GFD9nM9pmBVifcXiZtfGG124gg9ZskYFnqXCy5SGmJN");
-  // // const wallet2 = new PublicKey("56NECkZWVMwTTUxL2mTaBkhGPRkhfmA5PsrgwkvJThQF");
-  // // const wallet3 = new PublicKey("9dh3jDZGjnQfWzsSiinKna5zb5t9tLKQcfAiwqVRd4JV");
+  // const wallet1 = new PublicKey("2GFD9nM9pmBVifcXiZtfGG124gg9ZskYFnqXCy5SGmJN");
+  // const wallet2 = new PublicKey("56NECkZWVMwTTUxL2mTaBkhGPRkhfmA5PsrgwkvJThQF");
+  // const wallet3 = new PublicKey("9dh3jDZGjnQfWzsSiinKna5zb5t9tLKQcfAiwqVRd4JV");
 
-  // const [adminConfigPDA, bump] = await PublicKey.findProgramAddress(
-  //   [Buffer.from("admin_config")],
-  //   program.programId
-  // );
+  const [adminConfigPDA, bump] = await PublicKey.findProgramAddress(
+    [Buffer.from("admin_config")],
+    program.programId
+  );
 
-  // console.log("Admin Config PDA: ", adminConfigPDA.toBase58());
+  console.log("Admin Config PDA: ", adminConfigPDA.toBase58());
 
-  // const feeRecipientUsdtAccount = await getAssociatedTokenAddress(usdtMint, feeRecipient);
-  // const feeRecipientUsdcAccount = await getAssociatedTokenAddress(usdcMint, feeRecipient);
+  const feeRecipientUsdtAccount = await getAssociatedTokenAddress(usdtMint, feeRecipient, true);
+  const feeRecipientUsdcAccount = await getAssociatedTokenAddress(usdcMint, feeRecipient, true);
+  console.log("Fee Recipient USDT Account: ", feeRecipientUsdtAccount.toBase58());
+  console.log("Fee Recipient USDC Account: ", feeRecipientUsdcAccount.toBase58());
+
+  const [strikeReservePDA, strikeReserveBump] = await PublicKey.findProgramAddress(
+    [Buffer.from("strike_reserve")],
+    program.programId
+  );
+  console.log("Strike Reserve PDA: ", strikeReservePDA.toBase58());
+
+  const strikeReserveUsdtAccount = await getAssociatedTokenAddress(usdtMint, strikeReservePDA, true);
+  const strikeReserveUsdcAccount = await getAssociatedTokenAddress(usdcMint, strikeReservePDA, true);
+  console.log("Strike Reserve USDT Account: ", strikeReserveUsdtAccount.toBase58());
+  console.log("Strike Reserve USDC Account: ", strikeReserveUsdcAccount.toBase58());
 
   // const marketId = 'a63f9248-50ae-4684-b332-9eda17beb8d9';
   // const [marketPDA, marketBump] = await PublicKey.findProgramAddress(
@@ -127,27 +140,30 @@ describe("km_raffle_contract", async () => {
 
   // console.log('Buy Result:', buyResult)
 
-  // it("Is initialized", async () => {
-  //   const tx = await program.methods
-  //     .initializeAdminConfig(
-  //       // feeRecipient
-  //     )
-  //     .accounts({
-  //       authority: provider.wallet.publicKey,
-  //       adminConfig: adminConfigPDA,
-  //       feeRecipient: feeRecipient,
-  //       feeRecipientUsdtAccount: feeRecipientUsdtAccount,
-  //       feeRecipientUsdcAccount: feeRecipientUsdcAccount,
-  //       usdtMint: usdtMint,
-  //       usdcMint: usdcMint,
-  //       systemProgram: anchor.web3.SystemProgram.programId,
-  //       tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
-  //       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-  //     })
-  //     .signers([keypair])
-  //     .rpc();
-  //   console.log("Your transaction signature", tx);
-  // })
+  it("Is initialized", async () => {
+    const tx = await program.methods
+      .initializeAdminConfig(
+        // feeRecipient
+      )
+      .accounts({
+        authority: provider.wallet.publicKey,
+        adminConfig: adminConfigPDA,
+        feeRecipient: feeRecipient,
+        feeRecipientUsdtAccount: feeRecipientUsdtAccount,
+        feeRecipientUsdcAccount: feeRecipientUsdcAccount,
+        strikeReserve: strikeReservePDA,
+        strikeReserveUsdtAccount: strikeReserveUsdtAccount,
+        strikeReserveUsdcAccount: strikeReserveUsdcAccount,
+        usdtMint: usdtMint,
+        usdcMint: usdcMint,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      })
+      .signers([keypair])
+      .rpc();
+    console.log("Your transaction signature", tx);
+  })
 
   // it("Add Admin", async () => {
   //   const newAdmin = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");

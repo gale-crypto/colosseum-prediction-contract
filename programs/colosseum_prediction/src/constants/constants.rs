@@ -9,6 +9,8 @@ pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11Mc
 pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 pub const KM_MINT_PUBKEY: Pubkey = pubkey!("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");
 
+pub const SOL_USDT_FEED: &'static str = "71ScFiunXHAM75huu8dSbLRMNsZrs87DhdTJEcny5nya";
+
 // Market creation fee: 0.005 SOL = 5_000_000 lamports
 // pub const MARKET_CREATION_FEE: u64 = 5_000_000;
 pub const MARKET_CREATION_FEE: u64 = 420_000_000;

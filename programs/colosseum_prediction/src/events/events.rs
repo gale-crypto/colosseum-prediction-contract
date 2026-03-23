@@ -79,12 +79,12 @@ pub struct SellOptionEvent {
 }
 
 
-// #[event]
-// pub struct BuyCreditUsdtEvent {
-//     pub market: Pubkey,
-//     pub payer: Pubkey,
-//     pub option: u64,
-//     pub amount_in: u64,
-//     pub fee: u64,
-//     pub amount_after_fee: u64,1
-// }
+#[event]
+pub struct BuyCreditEvent {
+    pub user: Pubkey,
+    pub option: u64,
+    pub amount_in: u64,
+    pub amount_in_usd: u64,
+    pub fee: u64,
+    pub amount_after_fee: u64,
+}
