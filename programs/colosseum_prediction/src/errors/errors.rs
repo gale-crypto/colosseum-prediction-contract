@@ -54,4 +54,16 @@ pub enum ErrorCode {
     InvalidFeeRecipient,
     #[msg("Overflow")]
     Overflow,
+    #[msg("Invalid swap program")]
+    SwapFailed,
+    #[msg("Invalid winner payout split")]
+    InvalidWinnerPayoutSplit,
+    #[msg("Weekly distribution too soon")]
+    WeeklyDistributionTooSoon,
+    #[msg("Invalid winner")]
+    InvalidWinner,
+    #[msg("Invalid burn amount")]
+    InvalidBurnAmount,
+    #[msg("Invalid fee amount")]
+    InvalidFeeAmount,
 }

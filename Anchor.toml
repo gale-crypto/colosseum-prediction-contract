@@ -6,10 +6,10 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-colosseum_prediction = "4AEAbwpQHVr5ZG57sU5WB3xm5TGhRYCngpKLVV4C9ThV"
+colosseum_prediction = "6BcnCVo6wBVZfWJs6CcUrcLyDrqaZQ5EkUCKSVhLnsKs"
 
 [programs.mainnet]
-colosseum_prediction = "6BcnCVo6wBVZfWJs6CcUrcLyDrqaZQ5EkUCKSVhLnsKs"
+colosseum_prediction = "F37CEmyStW3Z5grDfLtVQUdKypHDBP8JNk35XWkvGAoJ"
 
 [registry]
 url = "https://api.apr.dev"

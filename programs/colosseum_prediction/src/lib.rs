@@ -11,7 +11,7 @@ use ixs::*;
 
 use crate::state::{MarketMethod, MarketOutcome};
 
-declare_id!("6BcnCVo6wBVZfWJs6CcUrcLyDrqaZQ5EkUCKSVhLnsKs");
+declare_id!("F37CEmyStW3Z5grDfLtVQUdKypHDBP8JNk35XWkvGAoJ");
 
 #[program]
 pub mod colosseum_prediction {
@@ -141,16 +141,20 @@ pub mod colosseum_prediction {
     }    
 
     // Credit trades
-    pub fn buy_credit_usdt(ctx: Context<BuyCreditUsdt>) -> Result<()> {
-        return ixs::buy_credit_usdt::buy_credit_usdt(ctx);
+    // pub fn buy_credit_usdt(ctx: Context<BuyCreditUsdt>) -> Result<()> {
+    //     return ixs::buy_credit_usdt::buy_credit_usdt(ctx);
+    // }
+
+    pub fn buy_credit_usdc(ctx: Context<BuyCreditUsdc>/*, data: Vec<u8>*/) -> Result<()> {
+        return ixs::buy_credit_usdc::buy_credit_usdc(ctx/*, data*/);
     }
 
-    pub fn buy_credit_usdc(ctx: Context<BuyCreditUsdc>) -> Result<()> {
-        return ixs::buy_credit_usdc::buy_credit_usdc(ctx);
+    pub fn distribute_strike_reward(ctx: Context<DistributeStrikeRewards>, total_pool: u64, data: Vec<u8>) -> Result<()> {
+        return ixs::distribute_strike_rewards::distribute_strike_rewards(ctx, total_pool, data);
     }
 
-    pub fn buy_credit_sol(ctx: Context<BuyCreditSol>) -> Result<()> {
-        return ixs::buy_credit_sol::buy_credit_sol(ctx);
-    }
+    // pub fn buy_credit_sol(ctx: Context<BuyCreditSol>) -> Result<()> {
+    //     return ixs::buy_credit_sol::buy_credit_sol(ctx);
+    // }
 }
 

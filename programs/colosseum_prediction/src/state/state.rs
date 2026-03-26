@@ -89,7 +89,9 @@ impl Market {
 pub struct AdminConfig {
     pub authority: Pubkey,
     pub fee_recipient: Pubkey,
+    pub swap_program: Pubkey,
     pub admins: Vec<Pubkey>,
+    pub last_strike_distribution_ts: i64,
     pub bump: u8,
 }
 
@@ -98,7 +100,9 @@ impl AdminConfig {
     pub const LEN: usize =
         32 + // authority
         32 + // fee_recipient
+        32 + // swap_program
         4 + (32 * Self::MAX_ADMINS) + // admins
+        8 + // last_strike_distribution_ts
         1; // bump
 }
 

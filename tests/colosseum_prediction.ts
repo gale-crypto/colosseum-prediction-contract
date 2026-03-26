@@ -140,45 +140,45 @@ describe("km_raffle_contract", async () => {
 
   // console.log('Buy Result:', buyResult)
 
-  it("Is initialized", async () => {
-    const tx = await program.methods
-      .initializeAdminConfig(
-        // feeRecipient
-      )
-      .accounts({
-        authority: provider.wallet.publicKey,
-        adminConfig: adminConfigPDA,
-        feeRecipient: feeRecipient,
-        feeRecipientUsdtAccount: feeRecipientUsdtAccount,
-        feeRecipientUsdcAccount: feeRecipientUsdcAccount,
-        strikeReserve: strikeReservePDA,
-        strikeReserveUsdtAccount: strikeReserveUsdtAccount,
-        strikeReserveUsdcAccount: strikeReserveUsdcAccount,
-        usdtMint: usdtMint,
-        usdcMint: usdcMint,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
-        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      })
-      .signers([keypair])
-      .rpc();
-    console.log("Your transaction signature", tx);
-  })
-
-  // it("Add Admin", async () => {
-  //   const newAdmin = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
+  // it("Is initialized", async () => {
   //   const tx = await program.methods
-  //     .addAdmin(
-  //       newAdmin
+  //     .initializeAdminConfig(
+  //       // feeRecipient
   //     )
   //     .accounts({
   //       authority: provider.wallet.publicKey,
   //       adminConfig: adminConfigPDA,
+  //       feeRecipient: feeRecipient,
+  //       feeRecipientUsdtAccount: feeRecipientUsdtAccount,
+  //       feeRecipientUsdcAccount: feeRecipientUsdcAccount,
+  //       strikeReserve: strikeReservePDA,
+  //       strikeReserveUsdtAccount: strikeReserveUsdtAccount,
+  //       strikeReserveUsdcAccount: strikeReserveUsdcAccount,
+  //       usdtMint: usdtMint,
+  //       usdcMint: usdcMint,
+  //       systemProgram: anchor.web3.SystemProgram.programId,
+  //       tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+  //       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
   //     })
   //     .signers([keypair])
   //     .rpc();
   //   console.log("Your transaction signature", tx);
   // })
+
+  it("Add Admin", async () => {
+    const newAdmin = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
+    const tx = await program.methods
+      .addAdmin(
+        newAdmin
+      )
+      .accounts({
+        authority: provider.wallet.publicKey,
+        adminConfig: adminConfigPDA,
+      })
+      .signers([keypair])
+      .rpc();
+    console.log("Your transaction signature", tx);
+  })
 
   // it("Initialize Market", async () => {
   //   const marketId = '27c7a829-4660-48a0-9e19-fc23d2c2e681';

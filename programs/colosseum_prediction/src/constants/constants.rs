@@ -33,9 +33,13 @@ pub const FEE_BUYBACK: u64 = 4_200;     // 0.42%
 pub const FEE_REFERRAL: u64 = 3_000;    // 0.30%
 pub const FEE_TREASURY: u64 = 7_000;    // 0.70%
 
-pub const CREDIT_FEE: u64 = 58_000;
+pub const CREDIT_RESERVE_FEE: u64 = 900_000;
+pub const CREDIT_TEAM_DAO_FEE: u64 = 58_000;
 pub const CREDIT_BURN_FEE: u64 = 42_000;
 
+pub const WINNER_1_BPS: u64 = 500_000; // 50%
+pub const WINNER_2_BPS: u64 = 300_000; // 30%
+pub const WINNER_3_BPS: u64 = 100_000; // 10%
 
 // LMSR liquidity parameter "b" (stored in Market.virtual_liquidity)
 pub const DEFAULT_VIRTUAL_LIQUIDITY: u64 = 1_000_000_000; // 1000.000000
