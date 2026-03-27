@@ -11,7 +11,8 @@ use ixs::*;
 
 use crate::state::{MarketMethod, MarketOutcome};
 
-declare_id!("F37CEmyStW3Z5grDfLtVQUdKypHDBP8JNk35XWkvGAoJ");
+declare_program!(jupiter_aggregator);
+declare_id!("DCovAdAbKXxT21X7L6RTyCKZxpzAvDJh4rrBTagUF8RY");
 
 #[program]
 pub mod colosseum_prediction {
@@ -145,12 +146,12 @@ pub mod colosseum_prediction {
     //     return ixs::buy_credit_usdt::buy_credit_usdt(ctx);
     // }
 
-    pub fn buy_credit_usdc(ctx: Context<BuyCreditUsdc>/*, data: Vec<u8>*/) -> Result<()> {
-        return ixs::buy_credit_usdc::buy_credit_usdc(ctx/*, data*/);
+    pub fn buy_credit_usdc(ctx: Context<BuyCreditUsdc>, data: Vec<u8>) -> Result<()> {
+        return ixs::buy_credit_usdc::buy_credit_usdc(ctx, data);
     }
 
-    pub fn distribute_strike_reward(ctx: Context<DistributeStrikeRewards>, total_pool: u64, data: Vec<u8>) -> Result<()> {
-        return ixs::distribute_strike_rewards::distribute_strike_rewards(ctx, total_pool, data);
+    pub fn distribute_strike_reward(ctx: Context<DistributeStrikeRewards>, total_usdc_amount: u64, total_burn_amount: u64/*, data: Vec<u8>*/) -> Result<()> {
+        return ixs::distribute_strike_rewards::distribute_strike_rewards(ctx, total_usdc_amount, total_burn_amount);
     }
 
     // pub fn buy_credit_sol(ctx: Context<BuyCreditSol>) -> Result<()> {

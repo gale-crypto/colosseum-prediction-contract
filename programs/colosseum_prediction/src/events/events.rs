@@ -89,11 +89,12 @@ pub struct BuyCreditEvent {
 #[event]
 pub struct DistributeStrikeRewardsEvent {
     pub distributed_by: Pubkey,
-    pub total_pool: u64,
+    pub total_usdc_amount: u64,
     pub winner_1: Pubkey,
     pub winner_2: Pubkey,
     pub winner_3: Pubkey,
     pub burn_amount: u64,
-    pub fee_amount: u64,
     pub winner_1_amount: u64,
+    pub winner_2_amount: u64,
+    pub winner_3_amount: u64,
 }

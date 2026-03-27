@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{Mint, Token, TokenAccount};
+// use jupiter_aggregator::program::Jupiter;
 
 use crate::errors::ErrorCode;
 use crate::state::AdminConfig;
@@ -10,6 +11,7 @@ pub fn initialize_admin_config(ctx: Context<InitializeAdminConfig>) -> Result<()
     let admin_config = &mut ctx.accounts.admin_config;
     admin_config.authority = ctx.accounts.authority.key();
     admin_config.fee_recipient = ctx.accounts.fee_recipient.key();
+    // admin_config.swap_program = ctx.accounts.swap_program.key();
     admin_config.admins = Vec::new();
     admin_config.bump = ctx.bumps.admin_config;
     Ok(())
@@ -80,4 +82,6 @@ pub struct InitializeAdminConfig<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+
+    // pub swap_program: Program<'info, Jupiter>,
 }
