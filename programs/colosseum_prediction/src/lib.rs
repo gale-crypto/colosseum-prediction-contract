@@ -12,7 +12,7 @@ use ixs::*;
 use crate::state::{MarketMethod, MarketOutcome};
 
 declare_program!(jupiter_aggregator);
-declare_id!("DCovAdAbKXxT21X7L6RTyCKZxpzAvDJh4rrBTagUF8RY");
+declare_id!("E1g4KAKT7PtBpkEGV7CN8t7N97NsnbsUHXBLQKhRmXEv");
 
 #[program]
 pub mod colosseum_prediction {

@@ -1,13 +1,13 @@
 use anchor_lang::prelude::*;
 
 #[constant]
-pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
-pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
-pub const KM_MINT_PUBKEY: Pubkey = pubkey!("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
+// pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
+// pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
+// pub const KM_MINT_PUBKEY: Pubkey = pubkey!("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
 
-// pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
-// pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-// pub const KM_MINT_PUBKEY: Pubkey = pubkey!("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");
+pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+pub const KM_MINT_PUBKEY: Pubkey = pubkey!("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");
 
 pub const SOL_USDT_FEED: &'static str = "71ScFiunXHAM75huu8dSbLRMNsZrs87DhdTJEcny5nya";
 

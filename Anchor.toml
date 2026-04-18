@@ -9,7 +9,7 @@ skip-lint = false
 colosseum_prediction = "DCovAdAbKXxT21X7L6RTyCKZxpzAvDJh4rrBTagUF8RY"
 
 [programs.mainnet]
-colosseum_prediction = "DCovAdAbKXxT21X7L6RTyCKZxpzAvDJh4rrBTagUF8RY"
+colosseum_prediction = "E1g4KAKT7PtBpkEGV7CN8t7N97NsnbsUHXBLQKhRmXEv"
 
 [registry]
 url = "https://api.apr.dev"
