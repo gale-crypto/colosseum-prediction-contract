@@ -22,6 +22,7 @@ custom-panic = []
 [dependencies]
 anchor-lang = { version = "0.31.1", features= ["init-if-needed", "event-cpi"] }
 anchor-spl = "0.31.1"
+solana-security-txt = "1.1.2"
 switchboard-on-demand = { version = "=0.10.3", features = ["anchor"] }
 bytemuck = "1.14"
 rust_decimal = "1.37.0"

@@ -6,13 +6,15 @@ pub mod ixs;
 pub mod state;
 pub mod utils;
 pub mod events;
+/// Embeds `security.txt` metadata in the on-chain `.so` (see `security_contact.rs`).
+mod security_contact;
 
 use ixs::*;
 
 use crate::state::{MarketMethod, MarketOutcome};
 
 declare_program!(jupiter_aggregator);
-declare_id!("E1g4KAKT7PtBpkEGV7CN8t7N97NsnbsUHXBLQKhRmXEv");
+declare_id!("8q3gx2TZ26ne8sETacwW8p7JLMeF4p4K7yEx9VGMRUiH");
 
 #[program]
 pub mod colosseum_prediction {
