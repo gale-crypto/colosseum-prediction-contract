@@ -355,47 +355,89 @@ pub fn lmsr_sell_no_to_amount(shares: u64, q_yes: u64, q_no: u64, b: u64) -> Res
 // We store spot prices in market.option_prices[i] (scaled 1e6).
 // -----------------------
 
-pub fn lmsr_sum_exp_multi(qs: &Vec<u64>, b: u64) -> Result<(f64, Vec<f64>)> {
+/// Returns `(Z, w)` where `Z = Σ exp(q_i/b)` and `w_i = exp(q_i/b - m)` with `m = max_i(q_i/b)` (softmax weights).
+/// Using `w`/`Z` is identical to raw `exp(q_i/b)` / `Σ exp(q_j/b)` but numerically stable.
+pub fn lmsr_sum_exp_multi(qs: &[u64], b: u64) -> Result<(f64, Vec<f64>)> {
     require!(b > 0, ErrorCode::MathOverflow);
+    if qs.is_empty() {
+        return Ok((0.0, vec![]));
+    }
+
     let bb = u64_to_f64_units(b);
-
-    let mut exps: Vec<f64> = Vec::with_capacity(qs.len());
-    let mut sum = 0.0f64;
-
+    let mut logits: Vec<f64> = Vec::with_capacity(qs.len());
+    let mut m = f64::NEG_INFINITY;
     for &q in qs.iter() {
         let qi = u64_to_f64_units(q);
-        let e = (clamp_exp(qi / bb)).exp();
-        require!(e.is_finite(), ErrorCode::MathOverflow);
-        exps.push(e);
-        sum += e;
+        let a = clamp_exp(qi / bb);
+        logits.push(a);
+        if a > m {
+            m = a;
+        }
+    }
+
+    let mut weights: Vec<f64> = Vec::with_capacity(qs.len());
+    let mut sum = 0.0f64;
+    for a in logits {
+        let w = (a - m).exp();
+        require!(w.is_finite() && w >= 0.0, ErrorCode::MathOverflow);
+        weights.push(w);
+        sum += w;
     }
     require!(sum.is_finite() && sum > 0.0, ErrorCode::MathOverflow);
-    Ok((sum, exps))
+    Ok((sum, weights))
 }
 
-pub fn lmsr_prices_multi(qs: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
-    let (sum, exps) = lmsr_sum_exp_multi(qs, b)?;
-    let mut prices: Vec<u64> = Vec::with_capacity(qs.len());
-
-    // IMPORTANT: we ensure prices sum to PRICE_SCALE by rounding then fixing the remainder.
-    let mut total: i64 = 0;
-    for e in exps.iter() {
-        let p = e / sum;
-        let ps = (p * (PRICE_SCALE as f64)).round() as i64;
-        total += ps;
-        prices.push(ps.max(MIN_PRICE as i64) as u64); // MIN_PRICE guard (optional)
+/// LMSR marginal prices: `p_i = exp(q_i/b) / Σ_j exp(q_j/b)` (same as `w_i / Z` from [`lmsr_sum_exp_multi`]).
+/// Optional per-leg floor `MIN_PRICE` / cap `MAX_PRICE` is applied in float, then **renormalized** so the
+/// distribution still reflects the full partition sum. Integer ticks use **largest remainder** so they sum
+/// to exactly [`PRICE_SCALE`](crate::constants::PRICE_SCALE) (no single-index bias).
+pub fn lmsr_prices_multi(qs: &[u64], b: u64) -> Result<Vec<u64>> {
+    if qs.is_empty() {
+        return Ok(vec![]);
     }
 
-    // Fix sum to exactly PRICE_SCALE (like your prior approach)
-    let diff = (PRICE_SCALE as i64) - total;
-    if !prices.is_empty() {
-        let idx = 0usize;
-        let adj = (prices[idx] as i64 + diff)
-            .max(MIN_PRICE as i64)
-            .min((PRICE_SCALE - MIN_PRICE) as i64) as u64;
-        prices[idx] = adj;
+    let (z, weights) = lmsr_sum_exp_multi(qs, b)?;
+    let n = weights.len();
+    let scale = PRICE_SCALE as f64;
+    let pmin = MIN_PRICE as f64 / scale;
+    let pmax = MAX_PRICE as f64 / scale;
+
+    let mut p: Vec<f64> = weights.iter().map(|w| w / z).collect();
+    for x in p.iter_mut() {
+        *x = (*x).max(pmin).min(pmax);
+    }
+    let s: f64 = p.iter().sum();
+    require!(s.is_finite() && s > 0.0, ErrorCode::MathOverflow);
+    for x in p.iter_mut() {
+        *x /= s;
     }
 
+    let float_ticks: Vec<f64> = p.iter().map(|x| x * scale).collect();
+    let mut floor_i: Vec<i64> = float_ticks.iter().map(|t| t.floor() as i64).collect();
+
+    let mut rem: Vec<(usize, f64)> = float_ticks
+        .iter()
+        .enumerate()
+        .map(|(i, t)| (i, t - floor_i[i] as f64))
+        .collect();
+
+    let target = PRICE_SCALE as i64;
+    let total: i64 = floor_i.iter().sum();
+    let mut diff = target - total;
+
+    // Largest remainder (Hamilton): give +1 to `diff` indices with greatest fractional parts.
+    rem.sort_by(|a, b| b.1.total_cmp(&a.1));
+    for t in 0..n {
+        if diff <= 0 {
+            break;
+        }
+        let i = rem[t].0;
+        floor_i[i] += 1;
+        diff -= 1;
+    }
+    require!(diff == 0, ErrorCode::MathOverflow);
+
+    let prices: Vec<u64> = floor_i.into_iter().map(|x| x as u64).collect();
     Ok(prices)
 }
 
@@ -403,7 +445,7 @@ pub fn lmsr_prices_multi(qs: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
 /// q_i = b*ln(p_i) + offset, offset chosen so min(q_i)=0.
 pub fn lmsr_seed_q_vec_from_initial_option_prices(initial_prices: &Vec<u64>, b: u64) -> Result<Vec<u64>> {
     require!(b > 0, ErrorCode::MathOverflow);
-    require!(initial_prices.len() >= 2 && initial_prices.len() <= Market::MAX_OPTIONS, ErrorCode::InvalidOptionsCount);
+    require!(initial_prices.len() >= 2, ErrorCode::InvalidOptionsCount);
 
     // allow small tolerance, but ensure strictly positive
     let mut sum = 0u64;

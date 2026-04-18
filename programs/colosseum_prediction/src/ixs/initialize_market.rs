@@ -33,7 +33,13 @@ pub fn initialize_market(
             );
         }
         MarketMethod::MultiChoice => {
-            require!(options.len() >= 2 && options.len() <= Market::MAX_OPTIONS, ErrorCode::InvalidOptionsCount);
+            require!(options.len() >= 2 , ErrorCode::InvalidOptionsCount);
+            for label in options.iter() {
+                require!(
+                    label.len() <= Market::MAX_OPTION_LENGTH,
+                    ErrorCode::OptionLabelTooLong
+                );
+            }
             require!(initial_option_prices.len() == options.len(), ErrorCode::InvalidOptionPrices);
             let total_price: u64 = initial_option_prices.iter().sum();
             require!(total_price >= 950_000 && total_price <= 1_050_000, ErrorCode::InvalidOptionPrices);
@@ -130,7 +136,7 @@ pub struct InitializeMarket<'info> {
     #[account(
         init,
         payer = creator,
-        space = 8 + Market::LEN,
+        space = 8 + Market::space_for_option_count(options.len()),
         seeds = [b"market", &market_id.as_bytes()[..32.min(market_id.len())]],
         bump
     )]

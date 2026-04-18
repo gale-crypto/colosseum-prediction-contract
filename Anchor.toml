@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-colosseum_prediction = "6BcnCVo6wBVZfWJs6CcUrcLyDrqaZQ5EkUCKSVhLnsKs"
+colosseum_prediction = "DCovAdAbKXxT21X7L6RTyCKZxpzAvDJh4rrBTagUF8RY"
 
 [programs.mainnet]
 colosseum_prediction = "DCovAdAbKXxT21X7L6RTyCKZxpzAvDJh4rrBTagUF8RY"
@@ -15,7 +15,7 @@ colosseum_prediction = "DCovAdAbKXxT21X7L6RTyCKZxpzAvDJh4rrBTagUF8RY"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "https://mainnet.helius-rpc.com/?api-key=7c2ffb6c-3a4c-4def-b9f3-f9103e922e7c"
+cluster = "mainnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

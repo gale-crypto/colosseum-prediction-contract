@@ -244,7 +244,13 @@ pub struct BuySharesWithUSDC<'info> {
     #[account(
         init_if_needed,
         payer = user,
-        space = 8 + Position::LEN,
+        space = 8 + Position::space_for_option_count(
+            if market.market_method == MarketMethod::Binary {
+                0
+            } else {
+                market.options.len()
+            }
+        ),
         seeds = [b"position", user.key().as_ref(), &prepare_market_id_seed(&market.market_id)],
         bump
     )]

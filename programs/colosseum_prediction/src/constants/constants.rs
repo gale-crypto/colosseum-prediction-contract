@@ -1,13 +1,13 @@
 use anchor_lang::prelude::*;
 
 #[constant]
-// pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
-// pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
-// pub const KM_MINT_PUBKEY: Pubkey = pubkey!("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
+pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
+pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
+pub const KM_MINT_PUBKEY: Pubkey = pubkey!("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
 
-pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
-pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-pub const KM_MINT_PUBKEY: Pubkey = pubkey!("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");
+// pub const USDT_MINT_PUBKEY: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+// pub const USDC_MINT_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+// pub const KM_MINT_PUBKEY: Pubkey = pubkey!("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");
 
 pub const SOL_USDT_FEED: &'static str = "71ScFiunXHAM75huu8dSbLRMNsZrs87DhdTJEcny5nya";
 
@@ -44,8 +44,8 @@ pub const WINNER_3_BPS: u64 = 100_000; // 10%
 // LMSR liquidity parameter "b" (stored in Market.virtual_liquidity)
 pub const DEFAULT_VIRTUAL_LIQUIDITY: u64 = 1_000_000_000; // 1000.000000
 
-// Bounds to avoid extreme prices (0.01 .. 0.99) for binary; multi-choice still clamped via exp safety
-pub const MIN_PRICE: u64 = 10_000;
+// Bounds to avoid extreme prices (0.001 .. 0.99) for binary; multi-choice still clamped via exp safety
+pub const MIN_PRICE: u64 = 1_000;
 pub const MAX_PRICE: u64 = 990_000;
 
 // exp clamp to avoid overflow in f64 exp()

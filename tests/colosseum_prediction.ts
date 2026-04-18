@@ -20,17 +20,17 @@ describe("km_raffle_contract", async () => {
 
   console.log("Program: ", program.programId.toBase58());
 
-  // const feeRecipient = new PublicKey("6yRZk5bb5nedXSwvpHERNVzePCsVQ4t3isPLEd7e4qRN");
-  // const usdtMint = new PublicKey("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
-  // const usdcMint = new PublicKey("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
-  // const kmMint = new PublicKey("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
+  const feeRecipient = new PublicKey("6yRZk5bb5nedXSwvpHERNVzePCsVQ4t3isPLEd7e4qRN");
+  const usdtMint = new PublicKey("2mfQgc4tf8vzcBeMKzEYMvWwgA3zt2Zf5v2QCeyaCtT7");
+  const usdcMint = new PublicKey("BRYjq2hyLJsTEZfxmDZMjrpFDvptNSRyaqgyQD9HmQ7Z");
+  const kmMint = new PublicKey("DqHczfUDH6d83aSZ9eez1TrJW3sGzBpmU9HyVyjrmGFv");
 
-  const feeRecipient = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
-  const usdtMint = new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
-  const usdcMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-  const kmMint = new PublicKey("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");  
+  // const feeRecipient = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
+  // const usdtMint = new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+  // const usdcMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  // const kmMint = new PublicKey("FThrNpdic79XRV6i9aCWQ2UTp7oRQuCXAgUWtZR2cs42");  
 
-  const secondAdmin = new PublicKey("53RTLbmTdqAmpLBsmmF9QVbWGsUdsJ1YFzZntXxRiUZn");
+  const secondAdmin = new PublicKey("5d6TRSHpqLuQWdeBXoCAuwY58hCGFEKLFDaZPQ1MAYUt");
 
   // const wallet1 = new PublicKey("2GFD9nM9pmBVifcXiZtfGG124gg9ZskYFnqXCy5SGmJN");
   // const wallet2 = new PublicKey("56NECkZWVMwTTUxL2mTaBkhGPRkhfmA5PsrgwkvJThQF");
@@ -165,11 +165,26 @@ describe("km_raffle_contract", async () => {
   //   console.log("Your transaction signature", tx);
   // })
 
-  it("Add Admin", async () => {
-    const newAdmin = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
+  // it("Add Admin", async () => {
+  //   // const newAdmin = new PublicKey("8z7Sx2LykUfHtKXU6xUe3ZgZetwqR45cqpLxNnA1ektK");
+  //   const newAdmin = new PublicKey("Cits9FJaXscX2X2QRZbMvNZkfXgPx8jTytCgqbRkr5eN");
+  //   const tx = await program.methods
+  //     .addAdmin(
+  //       newAdmin
+  //     )
+  //     .accounts({
+  //       authority: provider.wallet.publicKey,
+  //       adminConfig: adminConfigPDA,
+  //     })
+  //     .signers([keypair])
+  //     .rpc();
+  //   console.log("Your transaction signature", tx);
+  // })
+
+  it("Remove Admin", async () => {
     const tx = await program.methods
-      .addAdmin(
-        newAdmin
+      .removeAdmin(
+        secondAdmin
       )
       .accounts({
         authority: provider.wallet.publicKey,

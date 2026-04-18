@@ -40,6 +40,8 @@ pub enum ErrorCode {
     InvalidOptionIndex,
     #[msg("Invalid number of options")]
     InvalidOptionsCount,
+    #[msg("Option label exceeds max length")]
+    OptionLabelTooLong,
     #[msg("Invalid option prices")]
     InvalidOptionPrices,
     #[msg("Invalid mint address")]
@@ -66,4 +68,24 @@ pub enum ErrorCode {
     InvalidBurnAmount,
     #[msg("Invalid fee amount")]
     InvalidFeeAmount,
+    #[msg("Randomness account has not been committed yet.")]
+    RandomnessNotCommitted,
+    #[msg("Randomness has already been revealed for this raffle.")]
+    RandomnessAlreadyRevealed,
+    #[msg("Randomness commitment has expired — recommit.")]
+    RandomnessExpired,
+    #[msg("Randomness has not been resolved by the oracle yet.")]
+    RandomnessNotResolved,
+    #[msg("Randomness account does not match the committed account.")]
+    InvalidRandomnessAccount,    
+    #[msg("Already settled")]
+    AlreadySettled,
+    #[msg("Market still active")]
+    MarketStillActive,
+    #[msg("Invalid vault")]
+    InvalidVault,
+    #[msg("Invalid mint decimals")]
+    InvalidMintDecimals,
+    #[msg("Invalid outcome")]
+    InvalidOutcome,
 }

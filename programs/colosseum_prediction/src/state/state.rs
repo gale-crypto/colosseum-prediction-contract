@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::TokenAccount;
 
 // =======================
 // State
@@ -48,7 +47,10 @@ pub struct Market {
     pub settle_total_pool: u64,          // snapshot: usdt + usdc vault balances at resolution
     pub settle_total_winning_shares: u64, // snapshot: total winning shares at resolution
     pub settle_payout_per_share: u64,    // settle_total_pool * PRICE_SCALE / settle_total_winning_shares
-    pub settle_initialized: bool,        // true once snapshot is taken    
+    pub settle_initialized: bool,        // true once snapshot is taken  
+    
+    pub trading_paused: bool,
+    pub settle_remainder: u64,
 }
 
 impl Market {
@@ -82,7 +84,22 @@ impl Market {
         8 + // settle_total_pool
         8 + // settle_total_winning_shares
         8 + // settle_payout_per_share
-        1; // settle_initialized        
+        1 + // settle_initialized
+        1 + // trading_paused
+        8; // settle_remainder
+
+    /// Serialized `Market` body size **without** the 8-byte Anchor discriminator.
+    /// `num_options` is `options.len()` at init (`0` for binary, `2..=MAX_OPTIONS` for multi-choice).
+    #[inline]
+    pub fn space_for_option_count(num_options: usize) -> usize {
+        // let n = num_options.min(Market::MAX_OPTIONS);
+        const OPTIONS_VEC_MAX: usize = 4 + Market::MAX_OPTIONS * (4 + Market::MAX_OPTION_LENGTH);
+        const U64_VEC_MAX: usize = 4 + Market::MAX_OPTIONS * 8;
+        Market::LEN - OPTIONS_VEC_MAX
+            - 3 * U64_VEC_MAX
+            + (4 + num_options * (4 + Market::MAX_OPTION_LENGTH))
+            + 3 * (4 + num_options * 8)
+    }
 }
 
 #[account]
@@ -154,6 +171,16 @@ impl Position {
         8 + // fees_paid
         8 + 8 + // total_withdrawn_usdt, total_withdrawn_usdc
         1; // bump
+
+    /// Serialized account data size for `Position` **without** the 8-byte Anchor discriminator.
+    /// `num_options` is `0` for binary markets (empty `option_shares` / `option_costs`), or
+    /// `market.options.len()` for multi-choice (must be ≤ [`MAX_OPTIONS`](Self::MAX_OPTIONS)).
+    #[inline]
+    pub fn space_for_option_count(num_options: usize) -> usize {
+        // let n = num_options.min(Position::MAX_OPTIONS);
+        const MAX_VEC_BYTES: usize = 4 + Position::MAX_OPTIONS * 8;
+        Position::LEN - 2 * MAX_VEC_BYTES + 2 * (4 + num_options * 8)
+    }
 }
 
 #[account]
