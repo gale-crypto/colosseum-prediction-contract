@@ -103,30 +103,14 @@ pub fn resolve_market(ctx: Context<ResolveMarket>, outcome: MarketOutcome) -> Re
         _ => return err!(ErrorCode::InvalidOutcome),
     };
 
-    require!(total_winning_shares > 0, ErrorCode::NoWinningsToClaim);
-
     // -----------------------------
     // CALCULATE PAYOUT
     // -----------------------------
-    let numerator = (pool_total as u128)
-        .checked_mul(PRICE_SCALE as u128)
-        .ok_or(ErrorCode::MathOverflow)?;
-
-    let payout_per_share_u128 = numerator
-        .checked_div(total_winning_shares as u128)
-        .ok_or(ErrorCode::MathOverflow)?;
-
-    let remainder = numerator
-        .checked_rem(total_winning_shares as u128)
-        .ok_or(ErrorCode::MathOverflow)?;
-
-    require!(
-        payout_per_share_u128 <= u64::MAX as u128,
-        ErrorCode::MathOverflow
-    );
-
+    // Zero winning-side shares: resolve with no per-share distribution (`settle_payout_per_share` = 0,
+    // `settle_remainder` = 0 in the same units as the pro-rata dust field). Stranded vault balance is
+    // captured in `settle_total_pool`; claims on the winning path remain unavailable (see claim).
     let (payout_per_share, remainder) = if total_winning_shares == 0 {
-        (0u64, pool_total) // entire pool becomes remainder
+        (0u64, 0u64)
     } else {
         let numerator = (pool_total as u128)
             .checked_mul(PRICE_SCALE as u128)
@@ -154,7 +138,7 @@ pub fn resolve_market(ctx: Context<ResolveMarket>, outcome: MarketOutcome) -> Re
     market.settle_total_pool = pool_total;
     market.settle_total_winning_shares = total_winning_shares;
     market.settle_payout_per_share = payout_per_share;
-    market.settle_remainder = remainder as u64;
+    market.settle_remainder = remainder;
     market.settle_initialized = true;
 
     // -----------------------------
@@ -166,7 +150,7 @@ pub fn resolve_market(ctx: Context<ResolveMarket>, outcome: MarketOutcome) -> Re
         pool_total,
         total_winning_shares,
         payout_per_share,
-        remainder: remainder as u64,
+        remainder,
     });
 
     Ok(())
