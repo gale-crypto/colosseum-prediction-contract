@@ -6,9 +6,13 @@ use crate::errors::ErrorCode;
 use crate::state::{Market, MarketMethod, Position, AdminConfig};
 use crate::constants::{USDC_MINT_PUBKEY, PRICE_SCALE};
 use crate::events::BuyOptionEvent;
-use crate::utils::{prepare_market_id_seed, ensure_position_initialized, lmsr_buy_option_from_amount, calc_fee_split};
+use crate::utils::{
+    prepare_market_id_seed, ensure_position_initialized, lmsr_buy_option_from_amount, calc_fee_split,
+    require_tradeable_market,
+};
 
 pub fn buy_option_usdc(ctx: Context<BuyOptionUSDC>, option_index: u8, amount: u64) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &mut ctx.accounts.market;
     require!(market.market_method == MarketMethod::MultiChoice, ErrorCode::InvalidMarketMethod);
 

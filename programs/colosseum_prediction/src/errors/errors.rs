@@ -82,6 +82,8 @@ pub enum ErrorCode {
     AlreadySettled,
     #[msg("Market still active")]
     MarketStillActive,
+    #[msg("Trading is paused on this market")]
+    TradingPaused,
     #[msg("Invalid vault")]
     InvalidVault,
     #[msg("Invalid mint decimals")]

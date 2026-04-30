@@ -8,7 +8,7 @@ use crate::utils::{
     lmsr_buy_yes_from_amount, lmsr_buy_no_from_amount,
     lmsr_sell_yes_to_amount, lmsr_sell_no_to_amount,
     lmsr_buy_option_from_amount, lmsr_sell_option_to_amount,
-    calc_fee,
+    calc_fee, require_tradeable_market,
 };
 
 pub fn simulate_buy_binary(
@@ -16,6 +16,7 @@ pub fn simulate_buy_binary(
     side_yes: bool,
     amount: u64,
 ) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &ctx.accounts.market;
     require!(market.market_method == MarketMethod::Binary, ErrorCode::InvalidMarketMethod);
 
@@ -69,6 +70,7 @@ pub fn simulate_sell_binary(
     side_yes: bool,
     shares: u64,
 ) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &ctx.accounts.market;
     require!(market.market_method == MarketMethod::Binary, ErrorCode::InvalidMarketMethod);
 
@@ -125,6 +127,7 @@ pub fn simulate_buy_option(
     option_index: u8,
     amount: u64,
 ) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &ctx.accounts.market;
     require!(market.market_method == MarketMethod::MultiChoice, ErrorCode::InvalidMarketMethod);
 
@@ -175,6 +178,7 @@ pub fn simulate_sell_option(
     option_index: u8,
     shares: u64,
 ) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &ctx.accounts.market;
     require!(market.market_method == MarketMethod::MultiChoice, ErrorCode::InvalidMarketMethod);
 

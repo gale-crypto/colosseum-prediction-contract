@@ -14,9 +14,11 @@ use crate::utils::{
     calc_fee_split,
     split_payout,
     avg_cost_remove,
+    require_tradeable_market,
 };
 
 pub fn sell_yes(ctx: Context<SellShares>, shares: u64) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &mut ctx.accounts.market;
     require!(market.market_method == MarketMethod::Binary, ErrorCode::InvalidMarketMethod);
 
@@ -242,6 +244,7 @@ pub fn sell_yes(ctx: Context<SellShares>, shares: u64) -> Result<()> {
 }
 
 pub fn sell_no(ctx: Context<SellShares>, shares: u64) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &mut ctx.accounts.market;
     require!(market.market_method == MarketMethod::Binary, ErrorCode::InvalidMarketMethod);
 

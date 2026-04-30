@@ -7,10 +7,12 @@ use crate::events::BuyBinaryEvent;
 use crate::state::{AdminConfig, Market, MarketMethod, Position};
 use crate::constants::{USDC_MINT_PUBKEY, PRICE_SCALE};
 use crate::utils::{
-    prepare_market_id_seed, ensure_position_initialized, lmsr_buy_yes_from_amount, lmsr_buy_no_from_amount, calc_fee_split
+    prepare_market_id_seed, ensure_position_initialized, lmsr_buy_yes_from_amount,
+    lmsr_buy_no_from_amount, calc_fee_split, require_tradeable_market,
 };
 
 pub fn buy_yes_usdc(ctx: Context<BuySharesWithUSDC>, amount: u64) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let (fee_total, amount_after_fee, fee_buyback, fee_referral, fee_treasury) = calc_fee_split(amount)?;
 
     if fee_treasury > 0 {
@@ -122,6 +124,7 @@ pub fn buy_yes_usdc(ctx: Context<BuySharesWithUSDC>, amount: u64) -> Result<()> 
 }
 
 pub fn buy_no_usdc(ctx: Context<BuySharesWithUSDC>, amount: u64) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let (fee_total, amount_after_fee, fee_buyback, fee_referral, fee_treasury) = calc_fee_split(amount)?;
 
     if fee_treasury > 0 {

@@ -6,10 +6,14 @@ use crate::errors::ErrorCode;
 use crate::events::SellOptionEvent;
 use crate::state::{AdminConfig, Market, MarketMethod, Position};
 use crate::constants::{USDT_MINT_PUBKEY, USDC_MINT_PUBKEY, PRICE_SCALE};
-use crate::utils::{prepare_market_id_seed, ensure_position_initialized, lmsr_sell_option_to_amount, calc_fee_split, split_payout, avg_cost_remove};
+use crate::utils::{
+    prepare_market_id_seed, ensure_position_initialized, lmsr_sell_option_to_amount, calc_fee_split,
+    split_payout, avg_cost_remove, require_tradeable_market,
+};
 
 
 pub fn sell_option(ctx: Context<SellOption>, option_index: u8, shares: u64) -> Result<()> {
+    require_tradeable_market(&ctx.accounts.market)?;
     let market = &mut ctx.accounts.market;
     require!(market.market_method == MarketMethod::MultiChoice, ErrorCode::InvalidMarketMethod);
 

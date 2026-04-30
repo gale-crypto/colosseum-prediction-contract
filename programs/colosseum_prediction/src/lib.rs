@@ -89,7 +89,11 @@ pub mod colosseum_prediction {
 
     pub fn resolve_market(ctx: Context<ResolveMarket>, outcome: MarketOutcome) -> Result<()> {
         return ixs::resolve_market::resolve_market(ctx, outcome);
-    }    
+    }
+
+    pub fn set_market_trading_paused(ctx: Context<SetMarketTradingPaused>, paused: bool) -> Result<()> {
+        return ixs::set_market_trading_paused::set_market_trading_paused(ctx, paused);
+    }
 
     pub fn claim_winnings_yesno(ctx: Context<ClaimWinnings>) -> Result<()> {
       return ixs::claim_winnings_yesno::claim_winnings_yesno(ctx);

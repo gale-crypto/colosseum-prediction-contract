@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Burn, Token, TokenAccount};
 
 use crate::errors::ErrorCode;
-use crate::state::{Market, MarketMethod, Position};
+use crate::state::{Market, MarketMethod, Position, ResolutionStatus};
 use crate::constants::{
     PRICE_SCALE, EXP_CLAMP, MIN_PRICE, MAX_PRICE,
     FEE_TOTAL, FEE_BUYBACK, FEE_REFERRAL,
@@ -44,6 +44,17 @@ pub fn prepare_market_id_seed(market_id: &str) -> [u8; 32] {
     let mut result = [0u8; 32];
     result[..len].copy_from_slice(&bytes[..len]);
     result
+}
+
+/// Buys, sells, and trade simulations only apply to an open market with trading enabled.
+#[inline]
+pub fn require_tradeable_market(market: &Market) -> Result<()> {
+    require!(
+        market.resolution_status == ResolutionStatus::Open,
+        ErrorCode::MarketAlreadyResolved
+    );
+    require!(!market.trading_paused, ErrorCode::TradingPaused);
+    Ok(())
 }
 
 /// ---------------------------

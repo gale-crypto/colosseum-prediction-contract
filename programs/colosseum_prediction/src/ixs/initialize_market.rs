@@ -85,6 +85,7 @@ pub fn initialize_market(
     market.settle_total_winning_shares = 0;
     market.settle_payout_per_share = 0;
     market.settle_initialized = false;
+    market.trading_paused = false;
 
     if market_method == MarketMethod::Binary {
         market.yes_price = initial_yes_price;
